@@ -234,6 +234,10 @@ export function setupIpc(getWin: () => BrowserWindow | null): void {
   ipcMain.handle('shell:openExternal', (_e, url: string) => {
     if (/^https?:\/\//i.test(url)) return shell.openExternal(url);
   });
+  ipcMain.handle('shell:openPath', (_e, p: string) => shell.openPath(p));
+  ipcMain.handle('shell:showInFolder', (_e, p: string) => {
+    shell.showItemInFolder(p);
+  });
 
   ipcMain.handle('prefs:get', () => loadPrefs());
   ipcMain.handle('prefs:set', (_e, prefs: Parameters<typeof savePrefs>[0]) => savePrefs(prefs));

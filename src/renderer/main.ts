@@ -741,6 +741,42 @@ function wireEvents(): void {
     true,
   );
 
+  // 文件树右键菜单：默认程序打开 / 资源管理器定位
+  const fileMenu = $('#file-menu');
+  let menuFilePath: string | null = null;
+  const closeFileMenu = (): void => {
+    fileMenu.hidden = true;
+  };
+  $('#file-tree').addEventListener('contextmenu', (ev) => {
+    const el = (ev.target as HTMLElement).closest('.tree-file') as HTMLElement | null;
+    if (!el?.dataset.rel) return;
+    ev.preventDefault();
+    const f = files.find((x) => x.relPath === el.dataset.rel);
+    if (!f) return;
+    menuFilePath = f.absPath;
+    fileMenu.style.left = `${Math.min(ev.clientX, window.innerWidth - 190)}px`;
+    fileMenu.style.top = `${Math.min(ev.clientY, window.innerHeight - 92)}px`;
+    fileMenu.hidden = false;
+  });
+  document.addEventListener('click', (ev) => {
+    if (!(ev.target as HTMLElement).closest('#file-menu')) closeFileMenu();
+  });
+  document.addEventListener('contextmenu', (ev) => {
+    if (!(ev.target as HTMLElement).closest('.tree-file')) closeFileMenu();
+  });
+  $('#fm-open-default').addEventListener('click', async () => {
+    const p = menuFilePath;
+    closeFileMenu();
+    if (!p) return;
+    const err = await window.api.openPath(p);
+    if (err) toast('打开失败：' + err);
+  });
+  $('#fm-show-folder').addEventListener('click', () => {
+    const p = menuFilePath;
+    closeFileMenu();
+    if (p) void window.api.showInFolder(p);
+  });
+
   $('#sel-theme').addEventListener('change', () => {
     prefs.themeId = ($('#sel-theme') as HTMLSelectElement).value;
     $('#preview-theme-name').textContent = currentTheme().name;

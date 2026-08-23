@@ -81,6 +81,10 @@ export interface TypXApi {
   uploadImage(cfg: ImageHostConfig, fileName: string, base64: string): Promise<string>;
   /** 用系统默认浏览器打开外部链接 */
   openExternal(url: string): Promise<void>;
+  /** 用系统默认程序打开文件；成功返回空串，失败返回错误信息 */
+  openPath(path: string): Promise<string>;
+  /** 在资源管理器中定位并高亮该文件 */
+  showInFolder(path: string): Promise<void>;
   writeFile(absPath: string, content: string): Promise<{ mtime: number }>;
   getPrefs(): Promise<Prefs>;
   setPrefs(prefs: Prefs): Promise<void>;
