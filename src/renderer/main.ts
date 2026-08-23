@@ -3,7 +3,7 @@ import { createEditor, type EditorHandle } from './editor';
 import { renderMarkdown, mdFileUrlToPath, texToSvg } from './render';
 import { htmlToText, inlinePreviewStyles } from './inliner';
 import { BASE_CSS, BUILT_IN_THEMES, HLJS_CSS } from './themes';
-import type { CustomTheme, FileEntry, ImageHostConfig, Prefs, Project, ViewMode } from '../shared/types';
+import type { CopyProfile, CustomTheme, FileEntry, ImageHostConfig, Prefs, Project, ViewMode } from '../shared/types';
 
 const $ = <T extends HTMLElement>(sel: string): T => document.querySelector(sel) as T;
 const preview = $('#preview') as HTMLIFrameElement;
@@ -21,8 +21,8 @@ let prefs: Prefs = {
   mathMode: 'svg',
   imageHost: { type: 'off', token: '', repo: '', branch: 'master', dir: 'typx', urlStyle: 'jsdelivr' },
   platformCopy: {
-    wechat: { mathMode: 'svg', embedImages: true },
-    zhihu: { mathMode: 'off', embedImages: true },
+    wechat: { mathMode: 'svg', embedImages: true, footer: '' },
+    zhihu: { mathMode: 'off', embedImages: true, footer: '' },
   },
 };
 let folder: string | null = null;
@@ -435,6 +435,8 @@ async function copyRich(platform: 'wechat' | 'zhihu'): Promise<void> {
       const n = doc.querySelectorAll('.katex').length;
       if (n > 0) parts.push(`${n} 个公式按 HTML 原样复制`);
     }
+    // 文末推荐（按平台）：先追加进预览 DOM，再整体内联样式
+    appendPlatformFooter(profile);
     let html = inlinePreviewStyles(preview);
     if (profile.embedImages) {
       const r = await processImages(html);
@@ -458,6 +460,24 @@ async function copyRich(platform: 'wechat' | 'zhihu'): Promise<void> {
     // 截屏替换与内联都会改写预览 DOM，无论成败都重铺干净的
     preview.srcdoc = currentPreviewHtml();
   }
+}
+
+/** 复制时把平台专属的「文末推荐」渲染成 HTML 追加到预览末尾：
+ *  自动加一条分割线，Markdown 支持链接（公众号合集 / 知乎专栏等），
+ *  位置在文末脚注之前、正文之后。 */
+function appendPlatformFooter(profile: CopyProfile): void {
+  const doc = preview.contentDocument;
+  const root = doc?.getElementById('__typx');
+  if (!doc || !root || !profile.footer.trim()) return;
+  const baseDir = currentFile ? fileDir(currentFile.absPath) : (folder ?? '');
+  const html = renderMarkdown(`---\n\n${profile.footer.trim()}\n`, baseDir);
+  const tpl = doc.createElement('div');
+  tpl.innerHTML = html;
+  const frag = doc.createDocumentFragment();
+  while (tpl.firstChild) frag.appendChild(tpl.firstChild);
+  const note = root.querySelector('.typx-footnote');
+  if (note?.parentNode) note.parentNode.insertBefore(frag, note);
+  else root.appendChild(frag);
 }
 
 /** 复制前把预览里的 KaTeX 公式替换为 MathJax 行内 SVG（公众号方案，见 render.ts）。
@@ -739,6 +759,7 @@ function wireEvents(): void {
     const p = prefs.platformCopy[copyTab];
     ($('#sel-math-mode') as HTMLSelectElement).value = p.mathMode;
     ($('#chk-embed') as HTMLInputElement).checked = p.embedImages;
+    ($('#footer-input') as HTMLTextAreaElement).value = p.footer;
     document.querySelectorAll<HTMLButtonElement>('#copy-platform button').forEach((b) => {
       b.classList.toggle('active', b.dataset.p === copyTab);
     });
@@ -826,6 +847,7 @@ function wireEvents(): void {
     prefs.editorFontSize = Math.min(24, Math.max(12, parseInt(($('#font-size') as HTMLInputElement).value, 10) || 15));
     prefs.platformCopy[copyTab].embedImages = ($('#chk-embed') as HTMLInputElement).checked;
     prefs.platformCopy[copyTab].mathMode = ($('#sel-math-mode') as HTMLSelectElement).value as Prefs['platformCopy']['wechat']['mathMode'];
+    prefs.platformCopy[copyTab].footer = ($('#footer-input') as HTMLTextAreaElement).value;
     document.documentElement.style.setProperty('--cm-font-size', `${prefs.editorFontSize}px`);
     rebuildThemeSelect();
     preview.srcdoc = currentPreviewHtml();
@@ -1004,6 +1026,10 @@ function wireEvents(): void {
     },
     captureMath: replaceMathWithImages,
     svgMath: replaceMathWithSvg,
+    testFooter: (footerMd: string): { html: string } => {
+      appendPlatformFooter({ ...prefs.platformCopy.wechat, footer: footerMd });
+      return { html: inlinePreviewStyles(preview) };
+    },
     svgMathDetailed: () => {
       const failed: { tex: string; reason: string }[] = [];
       const n = replaceMathWithSvg(failed);

@@ -1,7 +1,7 @@
 {
   "name": "typx",
   "productName": "TypX",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "本地 Markdown 排版工具 —— 读取本地文件夹，套用主题，一键复制到微信公众号 / 知乎",
   "main": "dist/main/index.js",
   "author": "TypX",

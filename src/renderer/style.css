@@ -254,6 +254,18 @@ details.tree-dir > summary:hover { background: #eef2f7; }
   white-space: pre;
   color: #1f2937;
 }
+#footer-input {
+  flex: 1;
+  height: 92px;
+  padding: 8px 10px;
+  border: 1px solid #d5d9e0;
+  border-radius: 6px;
+  font-family: Consolas, 'Cascadia Code', monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  resize: vertical;
+  color: #1f2937;
+}
 .host-box {
   border: 1px solid #e5e7eb;
   border-radius: 8px;

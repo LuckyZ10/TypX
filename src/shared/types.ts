@@ -28,6 +28,8 @@ export interface CopyProfile {
   mathMode: 'svg' | 'image' | 'off';
   /** 复制时处理本地图片与公式截图（图床上传或 base64 兜底） */
   embedImages: boolean;
+  /** 文末推荐（Markdown，支持链接）：复制时自动渲染并加分隔线追加到文末 */
+  footer: string;
 }
 
 /** 图床配置：公众号正文粘贴会过滤 base64 图片，本地图/公式图必须换成 https 外链。

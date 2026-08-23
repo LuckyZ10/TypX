@@ -102,6 +102,39 @@ async function createWindow(): Promise<void> {
     });
   }
 
+  if (process.argv.includes('--footer-test')) {
+    console.log('[footertest] start');
+    const footerMd = [
+      '合集快速链接: [理解深度学习](https://mp.weixin.qq.com/mp/appmsgalbum?__biz=MzY5NDMwOTc0NQ==&action=getalbum&album_id=4592815689694117889#wechat_redirect)  [CMOS工艺合集](https://mp.weixin.qq.com/mp/appmsgalbum?__biz=MzY5NDMwOTc0NQ==&action=getalbum&album_id=4509843388564963329#wechat_redirect)',
+      '',
+      '领域精读合集: [Thin Films Technologies Review](https://mp.weixin.qq.com/mp/appmsgalbum?__biz=MzY5NDMwOTc0NQ==&action=getalbum&album_id=4629091589787942915#wechat_redirect)',
+    ].join('\n');
+    void win!
+      .webContents.executeJavaScript(
+        `(async () => {
+          for (let i = 0; i < 50 && !window.__typx; i++) await new Promise((r) => setTimeout(r, 100));
+          if (!window.__typx) return JSON.stringify({ error: 'hook not ready' });
+          window.__typx.setMarkdown('# 测试\\n\\n正文一段。');
+          await new Promise((r) => setTimeout(r, 700));
+          const { html } = window.__typx.testFooter(${JSON.stringify(footerMd)});
+          return JSON.stringify({
+            hasHr: html.includes('<hr'),
+            linkCount: (html.match(/<a[^>]*href="https:\\/\\/mp\\.weixin\\.qq\\.com/g) ?? []).length,
+            anchorStyled: /<a[^>]*style="[^"]*color:/i.test(html),
+            sample: html.slice(-700),
+          });
+        })()`,
+      )
+      .then((r) => {
+        console.log('[footertest]', r);
+        setTimeout(() => app.quit(), 400);
+      })
+      .catch((e) => {
+        console.log('[footertest] error', String(e));
+        app.exit(1);
+      });
+  }
+
   if (process.argv.includes('--math-test')) {
     console.log('[mathtest] start');
     const md = [

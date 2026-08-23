@@ -16,8 +16,8 @@ const DEFAULTS: Prefs = {
   mathMode: 'svg',
   imageHost: { type: 'off', token: '', repo: '', branch: 'master', dir: 'typx', urlStyle: 'jsdelivr' },
   platformCopy: {
-    wechat: { mathMode: 'svg', embedImages: true },
-    zhihu: { mathMode: 'off', embedImages: true },
+    wechat: { mathMode: 'svg', embedImages: true, footer: '' },
+    zhihu: { mathMode: 'off', embedImages: true, footer: '' },
   },
 };
 
