@@ -1,5 +1,7 @@
 # TypX — 本地 Markdown 排版工具
 
+**中文 | [English](README.en.md)**
+
 <p>
   <img src="assets/icon.png" width="88" alt="TypX 图标" align="left" />
 </p>
