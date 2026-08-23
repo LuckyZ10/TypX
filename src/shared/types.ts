@@ -32,8 +32,7 @@ export interface CopyProfile {
   footer: string;
 }
 
-/** 图床配置：公众号正文粘贴会过滤 base64 图片，本地图/公式图必须换成 https 外链。
- *  坚果云等 WebDAV 网盘不行——无法提供免登录直链，公众号抓取不到。 */
+/** 图床配置：公众号正文粘贴会过滤 base64 图片，本地图/公式图必须换成 https 外链。 */
 export interface ImageHostConfig {
   type: 'off' | 'gitee' | 'github' | 'smms';
   /** Gitee/GitHub: 访问令牌；SM.MS: API Token */

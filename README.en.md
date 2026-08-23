@@ -80,7 +80,6 @@ More commands: `npm run typecheck` / `npm run build` / `npm run dist:dir` (porta
 ## Known Platform Limits
 
 - WeChat filters base64 images and math HTML in pasted content — that's exactly why TypX converts math to SVG and offers optional image hosting
-- WebDAV drives (Nutstore etc.) cannot serve as image hosts (no login-free direct URLs)
 - Serif themes fall back to the phone's system serif; the look is largely preserved
 
 ## License
