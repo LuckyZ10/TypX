@@ -238,7 +238,8 @@ details.tree-dir > summary:hover { background: #eef2f7; }
 .muted { color: #9ca3af; }
 
 /* ---------- 弹窗 ---------- */
-#modal-mask {
+#modal-mask,
+#host-modal-mask {
   position: fixed;
   inset: 0;
   z-index: 50;
@@ -247,7 +248,8 @@ details.tree-dir > summary:hover { background: #eef2f7; }
   align-items: center;
   justify-content: center;
 }
-#modal-mask[hidden] { display: none; }
+#modal-mask[hidden],
+#host-modal-mask[hidden] { display: none; }
 .modal {
   width: min(760px, 92vw);
   max-height: 86vh;
