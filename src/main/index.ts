@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, protocol } from 'electron';
+import { app, BrowserWindow, Menu, nativeImage, protocol } from 'electron';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { setupIpc } from './ipc';
@@ -32,7 +32,64 @@ const MIME: Record<string, string> = {
 
 let win: BrowserWindow | null = null;
 
+/** 用隐藏窗口把 assets/icon.svg 画成 PNG（不引第三方依赖），
+ *  输出 256 母版与 16/32/48/64 小尺寸，供 ICO 封装与窗口图标使用 */
+async function generateIconAssets(): Promise<void> {
+  const svg = await fs.readFile(path.join(process.cwd(), 'assets', 'icon.svg'), 'utf-8');
+  const win2 = new BrowserWindow({
+    width: 256,
+    height: 256,
+    show: false,
+    webPreferences: { offscreen: true } as Electron.WebPreferences,
+  });
+  await win2.loadURL('about:blank');
+  await new Promise<void>((resolve) => {
+    win2.webContents.once('did-finish-load', () => resolve());
+    setTimeout(resolve, 1000); // about:blank 兜底
+  });
+  const dataUrl = (await win2.webContents.executeJavaScript(
+    `(async () => {
+      const svg = ${JSON.stringify(svg)};
+      const img = new Image();
+      await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); });
+      const c = document.createElement('canvas');
+      c.width = 256; c.height = 256;
+      c.getContext('2d').drawImage(img, 0, 0, 256, 256);
+      return c.toDataURL('image/png');
+    })()`,
+  )) as string;
+  win2.destroy();
+  const master = nativeImage.createFromDataURL(dataUrl);
+  const outDir = path.join(process.cwd(), 'assets');
+  await fs.mkdir(outDir, { recursive: true });
+  await fs.writeFile(path.join(outDir, 'icon.png'), master.toPNG());
+  for (const size of [16, 32, 48, 64]) {
+    await fs.writeFile(path.join(outDir, `icon-${size}.png`), master.resize({ width: size }).toPNG());
+  }
+  console.log('[icongen] assets/icon.png + icon-16/32/48/64.png 已生成');
+}
+
+if (process.argv.includes('--icon-gen')) {
+  app.whenReady().then(() => {
+    generateIconAssets()
+      .then(() => app.quit())
+      .catch((e) => {
+        console.log('[icongen] error', String(e));
+        app.exit(1);
+      });
+  });
+}
+
 async function createWindow(): Promise<void> {
+  // 窗口图标（打包后由 exe 内嵌图标接管；开发模式用 assets/icon.png）
+  let icon: string | undefined;
+  try {
+    const iconPath = path.join(__dirname, '../../assets/icon.png');
+    await fs.access(iconPath);
+    icon = iconPath;
+  } catch {
+    // 无图标文件时用系统默认
+  }
   win = new BrowserWindow({
     width: 1440,
     height: 920,
@@ -40,6 +97,7 @@ async function createWindow(): Promise<void> {
     minHeight: 640,
     title: 'TypX',
     autoHideMenuBar: true,
+    icon,
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.js'),
       contextIsolation: true,

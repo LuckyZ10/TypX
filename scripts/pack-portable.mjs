@@ -71,6 +71,9 @@ function findRcedit() {
 const rcedit = findRcedit();
 if (rcedit) {
   const exe = path.join(OUT, 'TypX.exe');
+  const iconArgs = existsSync(path.join(ROOT, 'assets', 'icon.ico'))
+    ? ['--set-icon', path.join(ROOT, 'assets', 'icon.ico')]
+    : [];
   try {
     execFileSync(
       rcedit,
@@ -81,10 +84,11 @@ if (rcedit) {
         '--set-version-string', 'OriginalFilename', 'TypX.exe',
         '--set-product-version', pkg.version,
         '--set-file-version', pkg.version,
+        ...iconArgs,
       ],
       { stdio: 'inherit' },
     );
-    console.log('rcedit: exe 元信息已更新');
+    console.log('rcedit: exe 元信息已更新', iconArgs.length ? '（含应用图标）' : '（无 icon.ico，跳过图标）');
   } catch (e) {
     console.warn('rcedit 失败（不影响功能，仅元信息）:', String(e));
   }

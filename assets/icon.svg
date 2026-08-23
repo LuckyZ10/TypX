@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2E3034"/>
+      <stop offset="1" stop-color="#1B1C1F"/>
+    </linearGradient>
+  </defs>
+  <!-- 深黑灰圆角底（墨青标签 H2 同源色） -->
+  <rect x="8" y="8" width="240" height="240" rx="52" fill="url(#bg)"/>
+  <!-- 白色 T -->
+  <rect x="76" y="68" width="104" height="26" rx="6" fill="#FFFFFF"/>
+  <rect x="115" y="68" width="26" height="94" rx="6" fill="#FFFFFF"/>
+  <!-- 珊瑚红 ×（主题加粗色），TypX 的 X -->
+  <g stroke="#EF7060" stroke-width="18" stroke-linecap="round">
+    <line x1="150" y1="150" x2="186" y2="186"/>
+    <line x1="186" y1="150" x2="150" y2="186"/>
+  </g>
+  <!-- 墨青蓝下划线（主题链接色） -->
+  <rect x="72" y="198" width="112" height="10" rx="5" fill="#0B53C2"/>
+</svg>
