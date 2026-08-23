@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'unsafe-inline' *; img-src * data: blob: mdfile:; font-src * data:; connect-src 'self' mdfile:;">
+<title>TypX</title>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div class="brand">TypX<small>本地 Markdown 排版</small></div>
+    <button id="btn-open" class="btn">📂 打开文件夹</button>
+    <button id="btn-refresh" class="btn">↻ 刷新</button>
+    <div class="sep"></div>
+    <label class="theme-label" for="sel-theme">主题</label>
+    <select id="sel-theme"></select>
+    <button id="btn-css" class="btn">✎ 自定义样式</button>
+    <button id="btn-host" class="btn">☁ 图床</button>
+    <div class="view-switch" id="view-switch">
+      <button data-view="edit" title="只看编辑器">✏️ 编辑</button>
+      <button data-view="split" title="编辑 + 预览">▤ 分屏</button>
+      <button data-view="preview" title="只看预览（隐藏 Markdown 原文）">👁 预览</button>
+    </div>
+    <label class="chk"><input type="checkbox" id="chk-sync" checked> 同步滚动</label>
+    <div class="spacer"></div>
+    <button id="btn-copy-md" class="btn">复制 Markdown</button>
+    <button id="btn-copy-zhihu" class="btn">复制到知乎</button>
+    <button id="btn-copy-rich" class="btn btn-primary">复制到公众号</button>
+  </header>
+
+  <div class="main">
+    <aside id="sidebar">
+      <div class="sidebar-head">
+        <button id="btn-project" class="project-btn" title="切换 / 管理项目"><span id="sidebar-title">项目</span><span class="caret">▾</span></button>
+        <span id="sidebar-count" class="muted"></span>
+      </div>
+      <div id="project-pop" hidden>
+        <div id="project-list"></div>
+        <button id="btn-project-add" class="btn">＋ 打开新文件夹…</button>
+      </div>
+      <div id="tree-empty" class="tree-empty">打开文件夹后会登记为项目，<br>这里会列出所有 Markdown 文件</div>
+      <div id="file-tree"></div>
+    </aside>
+
+    <section class="pane" id="editor-pane">
+      <div class="pane-head"><span id="editor-title">编辑器</span></div>
+      <div class="pane-body"><div id="editor"></div></div>
+    </section>
+
+    <section class="pane" id="preview-pane">
+      <div class="pane-head"><span>预览</span><span class="muted" id="preview-theme-name"></span></div>
+      <div class="pane-body"><iframe id="preview" sandbox="allow-same-origin" title="preview"></iframe></div>
+    </section>
+  </div>
+
+  <footer class="statusbar">
+    <span id="status-path">未打开文件夹</span>
+    <span id="status-count"></span>
+    <span id="status-dirty" class="ok">已保存</span>
+    <span class="spacer"></span>
+    <span class="muted">Ctrl+S 保存 · F10 开发者工具</span>
+  </footer>
+</div>
+
+<div id="modal-mask" hidden>
+  <div class="modal">
+    <h3>自定义主题样式</h3>
+    <div class="modal-body">
+      <div class="row">
+        <label for="theme-name">主题名称</label>
+        <input id="theme-name" type="text" placeholder="我的主题">
+        <label for="font-size">编辑器字号</label>
+        <input id="font-size" type="number" min="12" max="24" step="1" style="width:64px">
+      </div>
+      <div class="row">
+        <label for="footnote">文末脚注</label>
+        <input id="footnote" type="text" placeholder="例如：本文使用 TypX 排版（可留空）" style="flex:1">
+      </div>
+      <div class="row">
+        <label class="chk" style="margin:0"><input type="checkbox" id="chk-embed"> 复制时处理本地图片与公式图片（上传图床或 base64 兜底）</label>
+      </div>
+      <div class="row">
+        <label>复制方案</label>
+        <div class="view-switch" id="copy-platform">
+          <button data-p="wechat">公众号</button>
+          <button data-p="zhihu">知乎</button>
+        </div>
+        <span class="muted" style="font-size:12px">两个平台的管线独立，选项各自生效</span>
+      </div>
+      <div class="row">
+        <label for="sel-math-mode">公式复制</label>
+        <select id="sel-math-mode">
+          <option value="svg">转行内 SVG（推荐 · 无需图床 · 随字号缩放）</option>
+          <option value="image">转截图 PNG（走图床上传，公式多时粘贴易失败）</option>
+          <option value="off">原样 HTML（公众号易错位）</option>
+        </select>
+      </div>
+      <textarea id="css-input" spellcheck="false"></textarea>
+      <div class="muted" style="font-size:12px">CSS 会在复制时自动内联到每个元素上，直接粘贴到公众号 / 知乎即可生效。改完可先点「仅预览」看效果。</div>
+    </div>
+    <div class="modal-foot">
+      <button id="btn-theme-delete" class="btn btn-danger" hidden>删除此主题</button>
+      <div class="spacer"></div>
+      <button id="btn-theme-preview" class="btn">仅预览</button>
+      <button id="btn-theme-cancel" class="btn">取消</button>
+      <button id="btn-theme-save" class="btn btn-primary">保存并应用</button>
+    </div>
+  </div>
+</div>
+
+<div id="host-modal-mask" hidden>
+  <div class="modal">
+    <h3>☁ 图床设置</h3>
+    <div class="modal-body">
+      <div class="muted" style="font-size:12px;line-height:1.7">
+        公众号会过滤粘贴内容里的 base64 图片——本地图片和公式截图需要先上传图床换成 https 外链，粘贴时公众号自动转存。<br>
+        知乎可直接 base64，无需图床。图片按内容哈希命名，同一张只传一次；Token 仅保存在本机。
+      </div>
+      <div class="host-prov" id="host-prov">
+        <button data-p="gitee"><b>Gitee</b><span>国内快 · 推荐</span></button>
+        <button data-p="smms"><b>SM.MS</b><span>免建仓库 · 最简单</span></button>
+        <button data-p="github"><b>GitHub</b><span>无频率限制 · 国内网络可能不稳</span></button>
+        <button data-p="off"><b>关闭</b><span>base64 兜底（公众号不显示图）</span></button>
+      </div>
+
+      <div id="host-fields-git" hidden>
+        <div class="host-step">① 打开 <a href="#" id="lnk-gitee-guide">gitee.com</a> 建一个<b>公开</b>仓库（如 images）→ ② 设置 → 安全设置 → <b>私人令牌</b>，勾选 projects 生成 → ③ 填写下面两项</div>
+        <div class="row">
+          <label for="host-token">令牌</label>
+          <input id="host-token" type="password" placeholder="私人令牌 / Personal Access Token" style="flex:1">
+        </div>
+        <div class="row">
+          <label for="host-repo">仓库</label>
+          <input id="host-repo" type="text" placeholder="用户名/仓库名，例如 myname/images" style="flex:1">
+        </div>
+        <div class="row">
+          <label for="host-branch">分支</label>
+          <input id="host-branch" type="text" placeholder="默认 master（GitHub 常为 main）" style="width:220px">
+          <label for="host-dir">目录</label>
+          <input id="host-dir" type="text" placeholder="typx" style="width:90px">
+        </div>
+        <div class="row" id="host-url-style-row" hidden>
+          <label for="host-url-style">链接</label>
+          <select id="host-url-style">
+            <option value="jsdelivr">jsDelivr CDN（推荐）</option>
+            <option value="fastly">fastly.jsdelivr</option>
+            <option value="raw">raw.githubusercontent</option>
+          </select>
+          <span class="muted" style="font-size:12px">粘贴图片不显示时可换一个试试</span>
+        </div>
+        <div class="muted" id="host-git-note" style="font-size:12px"></div>
+      </div>
+
+      <div id="host-fields-smms" hidden>
+        <div class="host-step">① 打开 <a href="#" id="lnk-smms-guide">sm.ms</a> 注册（免费 5GB）→ ② 访问 sm.ms/apitoken 生成 API Token → ③ 填到下面</div>
+        <div class="row">
+          <label for="smms-token">Token</label>
+          <input id="smms-token" type="password" placeholder="SM.MS API Token" style="flex:1">
+        </div>
+      </div>
+
+      <div class="row">
+        <button id="btn-host-test" class="btn">测试图床（上传 1×1 测试图）</button>
+        <span id="host-test-result" class="muted" style="font-size:12px;word-break:break-all"></span>
+      </div>
+      <div class="muted" style="font-size:12px">坚果云等 WebDAV 网盘不能用作图床：无法提供免登录的图片直链，公众号抓取不到。</div>
+    </div>
+    <div class="modal-foot">
+      <div class="spacer"></div>
+      <button id="btn-host-cancel" class="btn">取消</button>
+      <button id="btn-host-save" class="btn btn-primary">保存</button>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+<script src="./app.js"></script>
+</body>
+</html>
