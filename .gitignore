@@ -3,5 +3,5 @@ dist/
 release/
 *.log
 capture-debug/
-scripts/capture-screenshots-browser.mjs
+scripts/capture-*.mjs
 assets/screenshots/
