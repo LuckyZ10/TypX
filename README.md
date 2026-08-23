@@ -1,5 +1,7 @@
 # TypX — 本地 Markdown 排版工具
 
+<p><img src="assets/icon.png" width="96" alt="TypX" /></p>
+
 Markdown Nice（mdnice）的本地文件夹版：用 Electron + TypeScript 编写。选择一个本地文件夹，左侧文件树浏览所有 Markdown 文章，右侧按主题实时排版，一键把「行内样式化」的 HTML 复制到微信公众号 / 知乎编辑器。
 
 📖 **完整功能教程见 [docs/使用教程.md](docs/使用教程.md)**
