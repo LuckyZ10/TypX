@@ -1026,6 +1026,21 @@ function wireEvents(): void {
     },
     captureMath: replaceMathWithImages,
     svgMath: replaceMathWithSvg,
+    setTheme(id: string): void {
+      prefs.themeId = id;
+      rebuildThemeSelect();
+      preview.srcdoc = currentPreviewHtml();
+    },
+    async openProject(p: string): Promise<boolean> {
+      return openFolder(p, { openLastFile: false });
+    },
+    async shotPreview(): Promise<string | null> {
+      const r = preview.getBoundingClientRect();
+      return window.api.captureRect({ x: Math.round(r.left), y: Math.round(r.top), width: Math.ceil(r.width), height: Math.ceil(r.height) });
+    },
+    async shotWindow(): Promise<string | null> {
+      return window.api.captureRect({ x: 0, y: 0, width: window.innerWidth, height: window.innerHeight });
+    },
     testFooter: (footerMd: string): { html: string } => {
       appendPlatformFooter({ ...prefs.platformCopy.wechat, footer: footerMd });
       return { html: inlinePreviewStyles(preview) };

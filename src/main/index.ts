@@ -160,6 +160,84 @@ async function createWindow(): Promise<void> {
     });
   }
 
+  if (process.argv.includes('--shot')) {
+    console.log('[shot] start');
+    const demoMd = [
+      '# 存储器件：一只电容一只管，怎么记住一个比特',
+      '',
+      'DRAM 的最小单元只有一个晶体管加一个电容。字线选通、位线读写，电容里存的就是那个 0/1——**结构越简单，密度越高**，这是存储器五十年不变的追求。',
+      '',
+      '位线电压摆幅由电荷分享决定：',
+      '',
+      '$$',
+      '\\Delta V = V_{BL} - V_{BLP} = \\frac{V_S - V_{BLP}}{1 + C_B/C_S}',
+      '$$',
+      '',
+      '其中 $C_B/C_S$ 是位线与存储电容之比，工程上一般做到 $C_B/C_S \\approx 8$，代入 $V_S = 5\\,\\mathrm{V}$、$V_{BLP} = 2.5\\,\\mathrm{V}$ 可得摆幅约 $0.28\\,\\mathrm{V}$。*摆幅越小读出越难，所以需要灵敏放大器。*',
+      '',
+      '## 关键参数',
+      '',
+      '| 参数 | 含义 | 典型值 |',
+      '| --- | --- | --- |',
+      '| EOT | 等效氧化层厚度 | < 1 nm |',
+      '| $C_B/C_S$ | 位线/存储电容比 | 8~10 |',
+      '| 刷新周期 | 电荷保持时间 | 64 ms |',
+      '',
+      '## 读写时序',
+      '',
+      '```verilog',
+      'always @(posedge wl) begin',
+      '    if (sense_enable) bl <= vdd/2 + dv;',
+      '    else               bl <= vdd/2;',
+      'end',
+      '```',
+      '',
+      '> 电容会漏电，所以 DRAM 必须周期性刷新——这是它与 SRAM 最大的代价。',
+      '',
+      '![存储单元结构](img/pic.png)',
+      '',
+      '*图 1：1T1C 存储单元结构示意*',
+    ].join('\n');
+    void win!
+      .webContents.executeJavaScript(
+        `(async () => {
+          for (let i = 0; i < 50 && !window.__typx; i++) await new Promise((r) => setTimeout(r, 100));
+          if (!window.__typx) return JSON.stringify({ error: 'hook not ready' });
+          await window.__typx.openProject(${JSON.stringify(path.join(process.cwd(), 'test-docs'))});
+          window.__typx.setMarkdown(${JSON.stringify(demoMd)});
+          await new Promise((r) => setTimeout(r, 900));
+          const ui = await window.__typx.shotWindow();
+          const themes = {};
+          for (const id of ['inkpaper', 'ink', 'clean', 'geek']) {
+            window.__typx.setTheme(id);
+            await new Promise((r) => setTimeout(r, 600));
+            themes[id] = await window.__typx.shotPreview();
+          }
+          return JSON.stringify({ ui, themes });
+        })()`,
+      )
+      .then(async (r) => {
+        const data = JSON.parse(r) as { ui?: string; themes?: Record<string, string> };
+        const outDir = path.join(process.cwd(), 'docs', 'images');
+        await fs.mkdir(outDir, { recursive: true });
+        const save = async (name: string, dataUrl: string | undefined) => {
+          if (dataUrl?.startsWith('data:image/png;base64,')) {
+            await fs.writeFile(path.join(outDir, name), Buffer.from(dataUrl.split(',')[1], 'base64'));
+            console.log('[shot] saved', name);
+          } else {
+            console.log('[shot] EMPTY', name);
+          }
+        };
+        await save('ui.png', data.ui);
+        for (const [id, url] of Object.entries(data.themes ?? {})) await save(`theme-${id}.png`, url);
+        setTimeout(() => app.quit(), 500);
+      })
+      .catch((e) => {
+        console.log('[shot] error', String(e));
+        app.exit(1);
+      });
+  }
+
   if (process.argv.includes('--footer-test')) {
     console.log('[footertest] start');
     const footerMd = [
