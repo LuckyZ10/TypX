@@ -115,24 +115,28 @@ async function createWindow(): Promise<void> {
     win.webContents.on('console-message', (_e, _level, message) => console.log('[renderer]', message));
     win.webContents.once('did-finish-load', () => {
       console.log('[smoke] renderer-loaded');
+      // 测试图片路径以项目根目录为基准（appPath），避免硬编码盘符
+      const imgDir = path.join(app.getAppPath(), 'test-docs', 'img').replace(/\\/g, '/');
+      const pngUrl = 'mdfile://md/' + encodeURI(imgDir + '/pic.png');
+      const cnUrl = 'mdfile://md/' + encodeURI(imgDir + '/图片 示例.png');
       // 验证 KaTeX 样式与字体、mdfile:// 本地图片协议可访问（含 MIME 正确性）
       void win!
         .webContents.executeJavaScript(
           `(async () => {
             const css = await fetch('katex.min.css');
             const font = await fetch('fonts/KaTeX_Main-Regular.woff2');
-            const png = await fetch('mdfile://md/D%3A/codex/TypX/test-docs/img/pic.png');
+            const png = await fetch(${JSON.stringify(pngUrl)});
             const pngSize = png.ok ? (await png.arrayBuffer()).byteLength : 0;
-            const cn = await fetch('mdfile://md/D%3A/codex/TypX/test-docs/img/%E5%9B%BE%E7%89%87%20%E7%A4%BA%E4%BE%8B.png');
+            const cn = await fetch(${JSON.stringify(cnUrl)});
             // 真实 <img> 加载路径（与预览 iframe 相同的加载方式）
             const imgLoad = await new Promise((res) => {
               const im = new Image();
               im.onload = () => res('loaded ' + im.naturalWidth + 'x' + im.naturalHeight);
               im.onerror = () => res('error');
-              im.src = 'mdfile://md/D%3A/codex/TypX/test-docs/img/pic.png';
+              im.src = ${JSON.stringify(pngUrl)};
             });
             // 复制时的本地图片 base64 内嵌（window.api 由 preload 暴露）
-            const b64 = await window.api.readFileBase64('D:/codex/TypX/test-docs/img/pic.png');
+            const b64 = await window.api.readFileBase64(${JSON.stringify(imgDir + '/pic.png')});
             // 公式转图片依赖的截屏通道（capturePage 需要窗口真实绘制）
             const cap = await window.api.captureRect({ x: 0, y: 0, width: 120, height: 40 });
             return JSON.stringify({

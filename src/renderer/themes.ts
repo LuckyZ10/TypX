@@ -224,7 +224,7 @@ hr { border: none; border-top: 1px solid #b9b5ae; margin: 2em 0; }
     id: 'inkpaper',
     name: '墨笺论文',
     css: `
-/* Typlatex Article Ink 完整移植：衬线宋体 + LaTeX 式首行缩进 + 两端对齐 + 三线表 + 深色标签 H2 */
+/* Typlatex Article Ink 完整移植：衬线宋体 + 两端对齐 + 三线表 + 深色标签 H2 */
 #__typx {
   font-family: 'Times New Roman', 'Noto Serif SC', 'Source Han Serif SC', 'SimSun', 'Songti SC', serif;
   font-size: 16px; /* 原版小四 12pt */
@@ -253,11 +253,8 @@ h4 { font-size: 0.88em; font-weight: 700; margin: 1em 0 0.45em; }
 h5 { font-size: 0.88em; font-weight: 400; font-style: italic; font-family: 'Times New Roman', 'SimSun', serif; margin: 0.9em 0 0.4em; }
 h6 { font-size: 0.88em; font-weight: 700; font-family: 'Times New Roman', 'SimSun', serif; margin: 0.9em 0 0.4em; }
 
-/* LaTeX 式首行缩进；标题/分隔线后的首段、列表、引用、图片段不缩进 */
-p { margin: 0 0 2px; text-indent: 2em; }
-h1 + p, h2 + p, h3 + p, h4 + p, h5 + p, h6 + p, hr + p { text-indent: 0; }
-li p, blockquote p { text-indent: 0; }
-p:has(> img:only-child), p:has(> a:only-child > img:only-child) { text-indent: 0; text-align: center; margin: 0.6em 0; }
+p { margin: 0 0 2px; }
+p:has(> img:only-child), p:has(> a:only-child > img:only-child) { text-align: center; margin: 0.6em 0; }
 
 strong { font-weight: 700; color: #ef7060; }
 em { font-style: italic; color: #0b53c2; }
@@ -266,7 +263,7 @@ a { color: #0b53c2; text-decoration: none; border-bottom: 1px solid rgba(11, 83,
 /* 斜体图注：图片段之后整段斜体 → 蓝色居中 */
 p:has(> img:only-child) + p:has(> em:only-child),
 p:has(> a:only-child > img:only-child) + p:has(> em:only-child) {
-  color: #0b53c2; text-align: center; font-size: 0.9em; margin: 0.2em 0 1.3em; text-indent: 0;
+  color: #0b53c2; text-align: center; font-size: 0.9em; margin: 0.2em 0 1.3em;
 }
 p:has(> img:only-child):has(+ p:has(> em:only-child)),
 p:has(> a:only-child > img:only-child):has(+ p:has(> em:only-child)) { margin-bottom: 0.3em; }

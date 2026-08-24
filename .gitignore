@@ -5,3 +5,4 @@ release/
 capture-debug/
 scripts/capture-*.mjs
 assets/screenshots/
+.zcode/
