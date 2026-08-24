@@ -17,6 +17,8 @@ export interface Project {
   /** 项目内最后打开的文章（相对路径），重新打开项目时自动恢复 */
   lastFile: string | null;
   lastOpenedAt: number;
+  /** 已发布公众号的文章（相对路径），文件树显示徽章，防止重复上传 */
+  published?: string[];
 }
 
 /** 视图模式：仅编辑 / 编辑+预览分屏 / 仅预览（隐藏 Markdown 原文） */

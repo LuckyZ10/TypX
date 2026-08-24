@@ -159,6 +159,20 @@ html, body {
 .tree-file:hover { background: #eef2f7; }
 .tree-file.active { background: #dbeafe; color: #1d4ed8; font-weight: 600; }
 
+/* 已发布公众号徽章 */
+.tree-file.published::after {
+  content: '已发布';
+  flex: none;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1;
+  color: #059669;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 8px;
+  padding: 2px 6px;
+}
+
 details.tree-dir { margin: 1px 0; }
 details.tree-dir > summary {
   list-style: none;

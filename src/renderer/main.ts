@@ -178,10 +178,10 @@ function buildTreeModel(): ModelNode[] {
 function appendNode(node: ModelNode, parent: HTMLElement | DocumentFragment, depth: number): void {
   if (node.type === 'file') {
     const div = document.createElement('div');
-    div.className = 'tree-file' + (currentFile?.relPath === node.relPath ? ' active' : '');
+    div.className = 'tree-file' + (currentFile?.relPath === node.relPath ? ' active' : '') + (isPublished(node.relPath) ? ' published' : '');
     div.dataset.rel = node.relPath;
     div.textContent = node.name;
-    div.title = node.relPath;
+    div.title = isPublished(node.relPath) ? `${node.relPath}（已发布公众号）` : node.relPath;
     parent.appendChild(div);
   } else {
     const det = document.createElement('details');
@@ -202,17 +202,32 @@ function renderTree(): void {
   const treeEl = $('#file-tree');
   treeEl.innerHTML = '';
   $('#tree-empty').style.display = files.length ? 'none' : 'block';
-  $('#sidebar-count').textContent = files.length ? `${files.length} 篇` : '';
   $('#sidebar-title').textContent = folder ? (folder.split(/[\\/]/).pop() ?? '项目') : '项目';
   const frag = document.createDocumentFragment();
   for (const node of buildTreeModel()) appendNode(node, frag, 0);
   treeEl.appendChild(frag);
+  const publishedCount = (findProject(folder)?.published ?? []).filter((r) => files.some((f) => f.relPath === r)).length;
+  $('#sidebar-count').textContent = files.length ? `${files.length} 篇${publishedCount ? ` · 已发布 ${publishedCount}` : ''}` : '';
 }
 
 /* ---------- 项目系统 ---------- */
 
 function findProject(path: string | null): Project | undefined {
   return path ? prefs.projects.find((p) => p.path === path) : undefined;
+}
+
+/** 文章是否已标记为发布公众号（按项目存相对路径） */
+function isPublished(relPath: string): boolean {
+  return (findProject(folder)?.published ?? []).includes(relPath);
+}
+
+function togglePublished(relPath: string): void {
+  const proj = findProject(folder);
+  if (!proj) return;
+  const list = proj.published ?? [];
+  proj.published = list.includes(relPath) ? list.filter((r) => r !== relPath) : [...list, relPath];
+  persistPrefsSoon();
+  renderTree();
 }
 
 async function openFolder(p: string, opts: { openLastFile?: boolean } = {}): Promise<boolean> {
@@ -741,9 +756,11 @@ function wireEvents(): void {
     true,
   );
 
-  // 文件树右键菜单：默认程序打开 / 资源管理器定位
+  // 文件树右键菜单：发布标记 / 默认程序打开 / 资源管理器定位
   const fileMenu = $('#file-menu');
+  const markBtn = $('#fm-mark-published') as HTMLButtonElement;
   let menuFilePath: string | null = null;
+  let menuFileRel: string | null = null;
   const closeFileMenu = (): void => {
     fileMenu.hidden = true;
   };
@@ -754,8 +771,10 @@ function wireEvents(): void {
     const f = files.find((x) => x.relPath === el.dataset.rel);
     if (!f) return;
     menuFilePath = f.absPath;
+    menuFileRel = f.relPath;
+    markBtn.textContent = isPublished(f.relPath) ? '↩ 取消已发布标记' : '✅ 标记为已发布公众号';
     fileMenu.style.left = `${Math.min(ev.clientX, window.innerWidth - 190)}px`;
-    fileMenu.style.top = `${Math.min(ev.clientY, window.innerHeight - 92)}px`;
+    fileMenu.style.top = `${Math.min(ev.clientY, window.innerHeight - 128)}px`;
     fileMenu.hidden = false;
   });
   document.addEventListener('click', (ev) => {
@@ -763,6 +782,16 @@ function wireEvents(): void {
   });
   document.addEventListener('contextmenu', (ev) => {
     if (!(ev.target as HTMLElement).closest('.tree-file')) closeFileMenu();
+  });
+  $('#fm-mark-published').addEventListener('click', () => {
+    const rel = menuFileRel;
+    closeFileMenu();
+    if (!rel || !findProject(folder)) {
+      toast('先打开文件夹（登记为项目）才能标记');
+      return;
+    }
+    togglePublished(rel);
+    toast(isPublished(rel) ? '已标记为已发布 ✅' : '已取消发布标记');
   });
   $('#fm-open-default').addEventListener('click', async () => {
     const p = menuFilePath;

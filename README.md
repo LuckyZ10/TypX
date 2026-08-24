@@ -40,7 +40,7 @@ File tree on the left, Markdown editor in the middle, live themed preview on the
 **✍️ Writing**
 
 - **Projects**: opened folders are auto-registered; switch between projects, auto-restore your last article; external changes reload automatically
-- **Three panes**: file tree · CodeMirror 6 editor (Ctrl+S) · scroll-synced preview
+- **Three panes**: file tree (right-click to open in default app, reveal in Explorer, or flag as "published" with a green badge to avoid duplicate uploads) · CodeMirror 6 editor (Ctrl+S) · scroll-synced preview
 - **View modes**: edit / split / preview — preview hides the Markdown source for distraction-free reading
 
 **🎨 Typesetting**
