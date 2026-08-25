@@ -21,6 +21,9 @@ const api: TypXApi = {
   onFsChanged: (cb) => {
     ipcRenderer.on('fs:changed', (_e, info) => cb(info));
   },
+  connectNutstore: (input) => ipcRenderer.invoke('sync:nutstore-connect', input),
+  syncProject: (projectPath, config) => ipcRenderer.invoke('sync:project', projectPath, config),
+  disconnectNutstore: (projectPath) => ipcRenderer.invoke('sync:nutstore-disconnect', projectPath),
 };
 
 contextBridge.exposeInMainWorld('api', api);

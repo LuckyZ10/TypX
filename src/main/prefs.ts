@@ -19,6 +19,7 @@ const DEFAULTS: Prefs = {
     wechat: { mathMode: 'svg', embedImages: true, footer: '' },
     zhihu: { mathMode: 'off', embedImages: true, footer: '' },
   },
+  copyTarget: 'wechat',
 };
 
 function prefsPath(): string {

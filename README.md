@@ -8,7 +8,7 @@
 
 **Type Markdown in local folders, copy paste-ready articles to WeChat Official Account / Zhihu in one click.**
 
-A local-folder edition of Markdown Nice (mdnice), built with Electron + TypeScript. Every file stays on your own computer — no servers involved.
+A local-folder edition of Markdown Nice (mdnice), built with Electron + TypeScript. It works fully locally by default, with optional per-project Nutstore WebDAV sync.
 
 📖 **[Full User Guide (中文)](docs/使用教程.md)** ｜ ⬇️ **[Download portable build](https://github.com/LuckyZ10/TypX/releases/latest)**
 
@@ -18,7 +18,7 @@ A local-folder edition of Markdown Nice (mdnice), built with Electron + TypeScri
 
 ![TypX main window: project file tree · Markdown editor · themed preview](docs/images/ui.png)
 
-File tree on the left, Markdown editor in the middle, live themed preview on the right. Every folder you open is registered as a **project**; TypX restores the most recent project and the article you were editing on startup.
+Projects and articles live on the left, the Markdown editor in the middle, and the themed preview on the right. Project, document, and publishing actions each have a consistent home. Every folder you open is registered as a **project**; TypX restores the most recent project and article on startup.
 
 ## Themes
 
@@ -40,6 +40,7 @@ File tree on the left, Markdown editor in the middle, live themed preview on the
 **✍️ Writing**
 
 - **Projects**: opened folders are auto-registered; switch between projects, auto-restore your last article; external changes reload automatically
+- **Optional Nutstore sync**: connect WebDAV per project, sync manually or after saves; passwords use the OS secure store, and concurrent changes are preserved as conflict copies
 - **Three panes**: file tree (right-click to open in default app, reveal in Explorer, or flag as "published" with a green badge to avoid duplicate uploads) · CodeMirror 6 editor (Ctrl+S) · scroll-synced preview
 - **View modes**: edit / split / preview — preview hides the Markdown source for distraction-free reading
 
@@ -61,6 +62,8 @@ File tree on the left, Markdown editor in the middle, live themed preview on the
 | Footer | custom links | custom links |
 
 - **Optional image hosting**: Gitee / GitHub / SM.MS, one-click test, content-hash naming with local cache
+
+The top-right split button remembers the last copy target; its dropdown switches between WeChat, Zhihu, and raw Markdown without duplicating platform buttons across the toolbar.
 
 ## Getting Started
 

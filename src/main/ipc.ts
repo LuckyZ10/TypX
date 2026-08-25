@@ -3,7 +3,8 @@ import { createHash } from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { loadPrefs, savePrefs } from './prefs';
-import type { FileEntry, ImageHostConfig } from '../shared/types';
+import { connectNutstore, disconnectNutstore, syncNutstoreProject } from './nutstore-sync';
+import type { FileEntry, ImageHostConfig, ProjectSyncConfig, SyncConnectInput } from '../shared/types';
 
 /* 上传缓存：内容哈希 -> 外链。同一张图（含公式截图）重复复制时秒回、
    不再消耗图床的请求配额。上限 1000 条，超出按最旧淘汰。 */
@@ -265,6 +266,10 @@ export function setupIpc(getWin: () => BrowserWindow | null): void {
   });
 
   ipcMain.handle('watch:stop', () => stopWatch());
+
+  ipcMain.handle('sync:nutstore-connect', (_e, input: SyncConnectInput) => connectNutstore(input));
+  ipcMain.handle('sync:project', (_e, projectPath: string, config: ProjectSyncConfig) => syncNutstoreProject(projectPath, config));
+  ipcMain.handle('sync:nutstore-disconnect', (_e, projectPath: string) => disconnectNutstore(projectPath));
 }
 
 function stopWatch(): void {

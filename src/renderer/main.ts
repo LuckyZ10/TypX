@@ -3,6 +3,7 @@ import { createEditor, type EditorHandle } from './editor';
 import { renderMarkdown, mdFileUrlToPath, texToSvg } from './render';
 import { htmlToText, inlinePreviewStyles } from './inliner';
 import { BASE_CSS, BUILT_IN_THEMES, HLJS_CSS } from './themes';
+import { createProjectSyncController, type ProjectSyncController } from './project-sync';
 import type { CopyProfile, CustomTheme, FileEntry, ImageHostConfig, Prefs, Project, ViewMode } from '../shared/types';
 
 const $ = <T extends HTMLElement>(sel: string): T => document.querySelector(sel) as T;
@@ -24,6 +25,7 @@ let prefs: Prefs = {
     wechat: { mathMode: 'svg', embedImages: true, footer: '' },
     zhihu: { mathMode: 'off', embedImages: true, footer: '' },
   },
+  copyTarget: 'wechat',
 };
 let folder: string | null = null;
 let files: FileEntry[] = [];
@@ -35,6 +37,7 @@ let suppressDoc = false;
 let renderTimer: number | undefined;
 let prefsTimer: number | undefined;
 let toastTimer: number | undefined;
+let projectSync!: ProjectSyncController;
 let previewBody = '';
 const expandedDirs = new Set<string>();
 
@@ -96,7 +99,7 @@ function doRender(): void {
   } else {
     preview.srcdoc = currentPreviewHtml();
   }
-  $('#status-count').textContent = `字数 ${md.replace(/\s/g, '').length}`;
+  $('#status-count').textContent = `${md.replace(/\s/g, '').length} 字`;
 }
 
 /* ---------- 主题 ---------- */
@@ -175,12 +178,26 @@ function buildTreeModel(): ModelNode[] {
   return root.children;
 }
 
+function makeIcon(id: string, className = ''): SVGSVGElement {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.classList.add('ui-icon');
+  if (className) svg.classList.add(className);
+  svg.setAttribute('aria-hidden', 'true');
+  const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+  use.setAttribute('href', `#icon-${id}`);
+  svg.appendChild(use);
+  return svg;
+}
+
 function appendNode(node: ModelNode, parent: HTMLElement | DocumentFragment, depth: number): void {
   if (node.type === 'file') {
     const div = document.createElement('div');
     div.className = 'tree-file' + (currentFile?.relPath === node.relPath ? ' active' : '') + (isPublished(node.relPath) ? ' published' : '');
     div.dataset.rel = node.relPath;
-    div.textContent = node.name;
+    const label = document.createElement('span');
+    label.className = 'tree-label';
+    label.textContent = node.name;
+    div.append(makeIcon('file', 'tree-icon'), label);
     div.title = isPublished(node.relPath) ? `${node.relPath}（已发布公众号）` : node.relPath;
     parent.appendChild(div);
   } else {
@@ -189,7 +206,10 @@ function appendNode(node: ModelNode, parent: HTMLElement | DocumentFragment, dep
     det.dataset.rel = node.relPath;
     det.open = depth === 0 || expandedDirs.has(node.relPath);
     const sum = document.createElement('summary');
-    sum.textContent = node.name;
+    const label = document.createElement('span');
+    label.className = 'tree-label';
+    label.textContent = node.name;
+    sum.append(makeIcon('chevron-right', 'tree-chevron'), makeIcon('folder', 'tree-icon'), label);
     det.appendChild(sum);
     const box = document.createElement('div');
     det.appendChild(box);
@@ -202,12 +222,17 @@ function renderTree(): void {
   const treeEl = $('#file-tree');
   treeEl.innerHTML = '';
   $('#tree-empty').style.display = files.length ? 'none' : 'block';
-  $('#sidebar-title').textContent = folder ? (folder.split(/[\\/]/).pop() ?? '项目') : '项目';
+  const project = findProject(folder);
+  $('#sidebar-title').textContent = project?.name ?? (folder ? (folder.split(/[\\/]/).pop() ?? '项目') : '项目');
   const frag = document.createDocumentFragment();
   for (const node of buildTreeModel()) appendNode(node, frag, 0);
   treeEl.appendChild(frag);
-  const publishedCount = (findProject(folder)?.published ?? []).filter((r) => files.some((f) => f.relPath === r)).length;
-  $('#sidebar-count').textContent = files.length ? `${files.length} 篇${publishedCount ? ` · 已发布 ${publishedCount}` : ''}` : '';
+  const publishedCount = (project?.published ?? []).filter((r) => files.some((f) => f.relPath === r)).length;
+  const syncEl = $('#project-sync-state');
+  syncEl.hidden = !project?.sync;
+  $('#sidebar-count').hidden = !!project?.sync;
+  $('#sidebar-count').textContent = files.length ? `${files.length} 篇${publishedCount ? ` · ${publishedCount} 已发布` : ''}` : '';
+  updateProjectChrome();
 }
 
 /* ---------- 项目系统 ---------- */
@@ -241,6 +266,7 @@ async function openFolder(p: string, opts: { openLastFile?: boolean } = {}): Pro
   }
   folder = p;
   files = list;
+  projectSync.reset();
 
   // 登记为项目（最近使用的排最前）
   const existing = findProject(p);
@@ -260,11 +286,13 @@ async function openFolder(p: string, opts: { openLastFile?: boolean } = {}): Pro
     const f = files.find((x) => x.relPath === proj.lastFile);
     if (f) await openFile(f);
   }
+  if (proj.sync?.autoSync) projectSync.schedule();
   return true;
 }
 
 function closeProject(): void {
   void window.api.unwatch();
+  projectSync.reset();
   folder = null;
   files = [];
   currentFile = null;
@@ -289,8 +317,32 @@ function removeProject(path: string): void {
 function toggleProjectPop(show?: boolean): void {
   const pop = $('#project-pop');
   const next = show ?? pop.hidden;
-  if (next) renderProjectList();
+  if (next) {
+    renderProjectList();
+    updateProjectChrome();
+    $('#project-list-wrap').hidden = !!folder;
+  }
   pop.hidden = !next;
+}
+
+function updateProjectChrome(): void {
+  const project = findProject(folder);
+  const sync = project?.sync;
+  const activeSyncState = projectSync?.getState() ?? 'idle';
+  $('#project-pop-title').textContent = project?.name ?? '项目';
+  const popSync = $('#project-pop-sync');
+  const syncLabel = activeSyncState === 'syncing' ? '同步中…' : activeSyncState === 'error' ? '同步失败' : '已同步';
+  $('#project-sync-label').textContent = syncLabel;
+  $('#project-pop-sync-label').textContent = sync ? `坚果云 · ${syncLabel}` : project ? '本地项目' : '请选择或打开文件夹';
+  $('#project-pop-sync-icon').toggleAttribute('hidden', !sync);
+  popSync.classList.toggle('connected', !!sync && activeSyncState !== 'error');
+  $('#sync-actions').hidden = !project;
+  $('#btn-sync-now').hidden = !sync;
+  $('#btn-sync-open').hidden = !sync;
+  $('#btn-sync-disconnect').hidden = !sync;
+  $('#btn-sync-settings').querySelector('.menu-label')!.textContent = sync ? '同步设置' : '连接坚果云';
+  $('#project-sync-state').classList.toggle('sync-error', activeSyncState === 'error');
+  updateStatus();
 }
 
 function renderProjectList(): void {
@@ -394,6 +446,7 @@ async function saveCurrent(): Promise<void> {
     dirty = false;
     updateStatus();
     toast('已保存');
+    projectSync.schedule();
   } catch (e) {
     toast('保存失败：' + (e as Error).message);
   }
@@ -402,11 +455,15 @@ async function saveCurrent(): Promise<void> {
 /* ---------- 状态 / 杂项 ---------- */
 
 function updateStatus(): void {
-  $('#status-path').textContent = currentFile ? currentFile.relPath : folder ? '（未打开文件）' : '未打开文件夹';
+  const projectName = findProject(folder)?.name ?? (folder ? folder.split(/[\\/]/).pop() : null);
+  $('#status-path').textContent = currentFile
+    ? `${projectName ?? '项目'}  /  ${currentFile.relPath}`
+    : projectName
+      ? `${projectName}  /  未打开文件`
+      : '未打开文件夹';
   const d = $('#status-dirty');
-  d.textContent = dirty ? '● 未保存' : '已保存';
+  d.innerHTML = `<i></i>${dirty ? '未保存' : '已保存'}`;
   d.className = dirty ? 'warn' : 'ok';
-  $('#editor-title').textContent = currentFile ? `${currentFile.name}${dirty ? ' *' : ''}` : '编辑器';
 }
 
 function toast(msg: string): void {
@@ -680,8 +737,37 @@ function onDoc(value: string): void {
     dirty = true;
     updateStatus();
   }
-  $('#status-count').textContent = `字数 ${value.replace(/\s/g, '').length}`;
+  $('#status-count').textContent = `${value.replace(/\s/g, '').length} 字`;
   scheduleRender();
+}
+
+function copyMarkdown(): void {
+  const value = editor.getValue();
+  if (!value.trim()) {
+    toast('没有内容可复制');
+    return;
+  }
+  void window.api.copyText(value);
+  toast('已复制 Markdown 原文');
+}
+
+function updateCopyTargetUi(): void {
+  const isWechat = prefs.copyTarget !== 'zhihu';
+  prefs.copyTarget = isWechat ? 'wechat' : 'zhihu';
+  $('#btn-copy-rich').textContent = isWechat ? '复制到公众号' : '复制到知乎';
+  document.querySelectorAll<HTMLButtonElement>('#copy-menu [data-platform]').forEach((button) => {
+    button.classList.toggle('active', button.dataset.platform === prefs.copyTarget);
+  });
+}
+
+function setCopyTarget(target: 'wechat' | 'zhihu'): void {
+  prefs.copyTarget = target;
+  updateCopyTargetUi();
+  persistPrefsSoon();
+}
+
+function onCursor(line: number, column: number): void {
+  $('#status-position').textContent = `第 ${line} 行，第 ${column} 列`;
 }
 
 function onEditorScrollRatio(r: number): void {
@@ -727,10 +813,18 @@ function wireEvents(): void {
     const p = await window.api.selectFolder();
     if (p) await openFolder(p, { openLastFile: true });
   });
+  $('#btn-project-switch').addEventListener('click', () => {
+    const wrap = $('#project-list-wrap');
+    wrap.hidden = !wrap.hidden;
+    if (!wrap.hidden) renderProjectList();
+  });
+  projectSync.wire();
   document.addEventListener('click', (ev) => {
     const t = ev.target as HTMLElement;
     if (!t.closest('#project-pop') && !t.closest('#btn-project')) toggleProjectPop(false);
   });
+
+  $('#btn-settings').addEventListener('click', () => $('#btn-css').click());
 
   // 视图模式（编辑 / 分屏 / 预览）
   $('#view-switch').addEventListener('click', (ev) => {
@@ -758,7 +852,7 @@ function wireEvents(): void {
 
   // 文件树右键菜单：发布标记 / 默认程序打开 / 资源管理器定位
   const fileMenu = $('#file-menu');
-  const markBtn = $('#fm-mark-published') as HTMLButtonElement;
+  const markLabel = $('#fm-mark-label');
   let menuFilePath: string | null = null;
   let menuFileRel: string | null = null;
   const closeFileMenu = (): void => {
@@ -772,7 +866,7 @@ function wireEvents(): void {
     if (!f) return;
     menuFilePath = f.absPath;
     menuFileRel = f.relPath;
-    markBtn.textContent = isPublished(f.relPath) ? '↩ 取消已发布标记' : '✅ 标记为已发布公众号';
+    markLabel.textContent = isPublished(f.relPath) ? '取消已发布标记' : '标记为已发布公众号';
     fileMenu.style.left = `${Math.min(ev.clientX, window.innerWidth - 190)}px`;
     fileMenu.style.top = `${Math.min(ev.clientY, window.innerHeight - 128)}px`;
     fileMenu.hidden = false;
@@ -845,23 +939,46 @@ function wireEvents(): void {
     persistPrefsSoon();
   });
 
-  $('#btn-copy-rich').addEventListener('click', () => void copyRich('wechat'));
-  $('#btn-copy-zhihu').addEventListener('click', () => void copyRich('zhihu'));
-
-  $('#btn-copy-md').addEventListener('click', () => {
-    const v = editor.getValue();
-    if (!v.trim()) {
-      toast('没有内容可复制');
-      return;
-    }
-    void window.api.copyText(v);
-    toast('已复制 Markdown 原文');
+  const copyMenu = $('#copy-menu');
+  const closeCopyMenu = (): void => {
+    copyMenu.hidden = true;
+  };
+  $('#btn-copy-menu').addEventListener('click', (ev) => {
+    ev.stopPropagation();
+    copyMenu.hidden = !copyMenu.hidden;
   });
+  $('#btn-copy-rich').addEventListener('click', () => void copyRich(prefs.copyTarget));
+  $('#btn-copy-wechat-menu').addEventListener('click', () => {
+    setCopyTarget('wechat');
+    closeCopyMenu();
+    void copyRich('wechat');
+  });
+  $('#btn-copy-zhihu').addEventListener('click', () => {
+    setCopyTarget('zhihu');
+    closeCopyMenu();
+    void copyRich('zhihu');
+  });
+  $('#btn-copy-md').addEventListener('click', copyMarkdown);
+  $('#btn-copy-md-menu').addEventListener('click', () => {
+    closeCopyMenu();
+    copyMarkdown();
+  });
+  $('#btn-publish-settings').addEventListener('click', () => {
+    closeCopyMenu();
+    $('#btn-css').click();
+  });
+  document.addEventListener('click', (ev) => {
+    if (!(ev.target as HTMLElement).closest('.copy-split')) closeCopyMenu();
+  });
+  updateCopyTargetUi();
 
   window.addEventListener('keydown', (ev) => {
     if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 's') {
       ev.preventDefault();
       void saveCurrent();
+    } else if ((ev.ctrlKey || ev.metaKey) && ev.key === 'Enter') {
+      ev.preventDefault();
+      void copyRich(prefs.copyTarget);
     }
   });
 
@@ -1073,7 +1190,18 @@ function wireEvents(): void {
   }
   document.documentElement.style.setProperty('--cm-font-size', `${prefs.editorFontSize}px`);
 
-  editor = createEditor($('#editor'), onDoc, onEditorScrollRatio);
+  editor = createEditor($('#editor'), onDoc, onEditorScrollRatio, onCursor);
+  projectSync = createProjectSyncController({
+    getContext: () => {
+      const project = findProject(folder);
+      return folder && project ? { folder, project } : null;
+    },
+    refreshProject: () => refreshTree(true),
+    persist: persistPrefsSoon,
+    render: renderTree,
+    toast,
+    closeProjectMenu: () => toggleProjectPop(false),
+  });
   rebuildThemeSelect();
   ($('#chk-sync') as HTMLInputElement).checked = prefs.syncScroll;
   setViewMode(prefs.viewMode);

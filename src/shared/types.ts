@@ -19,6 +19,31 @@ export interface Project {
   lastOpenedAt: number;
   /** 已发布公众号的文章（相对路径），文件树显示徽章，防止重复上传 */
   published?: string[];
+  /** 可选的项目级云同步；凭据由主进程加密保存，不进入偏好文件 */
+  sync?: ProjectSyncConfig;
+}
+
+export interface ProjectSyncConfig {
+  provider: 'nutstore';
+  username: string;
+  /** WebDAV 下的项目目录，例如 /TypX/my-project */
+  remotePath: string;
+  autoSync: boolean;
+  lastSyncAt?: number;
+}
+
+export interface SyncConnectInput {
+  projectPath: string;
+  username: string;
+  appPassword: string;
+  remotePath: string;
+}
+
+export interface SyncResult {
+  uploaded: number;
+  downloaded: number;
+  conflicts: string[];
+  finishedAt: number;
 }
 
 /** 视图模式：仅编辑 / 编辑+预览分屏 / 仅预览（隐藏 Markdown 原文） */
@@ -68,6 +93,8 @@ export interface Prefs {
   imageHost: ImageHostConfig;
   /** 按平台独立的复制方案 */
   platformCopy: { wechat: CopyProfile; zhihu: CopyProfile };
+  /** 分体复制按钮记住上一次使用的目标 */
+  copyTarget: 'wechat' | 'zhihu';
 }
 
 export interface TypXApi {
@@ -95,6 +122,9 @@ export interface TypXApi {
   watchFolder(folder: string): Promise<void>;
   unwatch(): Promise<void>;
   onFsChanged(cb: (info: { relPath: string | null }) => void): void;
+  connectNutstore(input: SyncConnectInput): Promise<SyncResult>;
+  syncProject(projectPath: string, config: ProjectSyncConfig): Promise<SyncResult>;
+  disconnectNutstore(projectPath: string): Promise<void>;
 }
 
 declare global {

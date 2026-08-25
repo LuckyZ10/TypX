@@ -7,71 +7,160 @@
 <link rel="stylesheet" href="./app.css">
 </head>
 <body>
+<svg class="icon-sprite" aria-hidden="true">
+  <symbol id="icon-chevron-down" viewBox="0 0 20 20"><path d="m6 8 4 4 4-4"/></symbol>
+  <symbol id="icon-chevron-right" viewBox="0 0 20 20"><path d="m8 6 4 4-4 4"/></symbol>
+  <symbol id="icon-refresh" viewBox="0 0 20 20"><path d="M16.25 7.4A6.6 6.6 0 1 0 16 13.15"/><path d="M16.25 3.8v3.9h-3.9"/></symbol>
+  <symbol id="icon-sync" viewBox="0 0 20 20"><path d="M15.8 7.25A6.2 6.2 0 0 0 5.15 4.8L3.5 6.45"/><path d="M3.5 3.7v2.75h2.75"/><path d="M4.2 12.75a6.2 6.2 0 0 0 10.65 2.45l1.65-1.65"/><path d="M16.5 16.3v-2.75h-2.75"/></symbol>
+  <symbol id="icon-cloud" viewBox="0 0 20 20"><path d="M5.3 15.4h9.25a3.45 3.45 0 0 0 .45-6.87 5.25 5.25 0 0 0-9.9 1.33 2.78 2.78 0 0 0 .2 5.54Z"/></symbol>
+  <symbol id="icon-check" viewBox="0 0 20 20"><path d="m5.8 10.25 2.75 2.75 5.65-6"/></symbol>
+  <symbol id="icon-folder" viewBox="0 0 20 20"><path d="M2.75 5.45h5.1l1.55 1.8h7.85v8.45H2.75z"/><path d="M2.75 7.25V4.15h5.1l1.45 1.3"/></symbol>
+  <symbol id="icon-file" viewBox="0 0 20 20"><path d="M5 2.75h6.1L15.25 7v10.25H5z"/><path d="M11.1 2.75V7h4.15"/></symbol>
+  <symbol id="icon-settings" viewBox="0 0 20 20"><circle cx="10" cy="10" r="2.55"/><path d="M16.2 11.15V8.8l-1.92-.6-.5-1.2.93-1.78-1.66-1.66-1.8.93-1.18-.48-.6-1.91H7.12l-.6 1.91-1.18.48-1.8-.93-1.66 1.66L2.82 7l-.5 1.2-1.92.6v2.35l1.92.6.5 1.2-.94 1.8 1.66 1.65 1.8-.92 1.18.48.6 1.94h2.35l.6-1.94 1.18-.48 1.8.92 1.66-1.65-.93-1.8.5-1.2z"/></symbol>
+  <symbol id="icon-sliders" viewBox="0 0 20 20"><path d="M4 5h4M12 5h4M4 10h8M16 10h0M4 15h2M10 15h6"/><circle cx="10" cy="5" r="1.65"/><circle cx="14" cy="10" r="1.65"/><circle cx="8" cy="15" r="1.65"/></symbol>
+  <symbol id="icon-external" viewBox="0 0 20 20"><path d="M16 10.5v5.25a1.5 1.5 0 0 1-1.5 1.5H4.25a1.5 1.5 0 0 1-1.5-1.5V5.5A1.5 1.5 0 0 1 4.25 4H9.5"/><path d="M12 2.75h5.25V8M10 10l7.25-7.25"/></symbol>
+  <symbol id="icon-more-vertical" viewBox="0 0 20 20"><circle cx="10" cy="4" r="1"/><circle cx="10" cy="10" r="1"/><circle cx="10" cy="16" r="1"/></symbol>
+  <symbol id="icon-open" viewBox="0 0 20 20"><path d="M4.25 3.25h7.5l4 4v9.5H4.25z"/><path d="M11.75 3.25v4h4"/><path d="M7 12.75h6M10 9.75v6"/></symbol>
+</svg>
 <div id="app">
-  <header class="topbar">
-    <div class="brand">TypX<small>本地 Markdown 排版</small></div>
-    <button id="btn-open" class="btn">📂 打开文件夹</button>
-    <button id="btn-refresh" class="btn">↻ 刷新</button>
-    <div class="sep"></div>
-    <label class="theme-label" for="sel-theme">主题</label>
-    <select id="sel-theme"></select>
-    <button id="btn-css" class="btn">✎ 自定义样式</button>
-    <button id="btn-host" class="btn">☁ 图床</button>
-    <div class="view-switch" id="view-switch">
-      <button data-view="edit" title="只看编辑器">✏️ 编辑</button>
-      <button data-view="split" title="编辑 + 预览">▤ 分屏</button>
-      <button data-view="preview" title="只看预览（隐藏 Markdown 原文）">👁 预览</button>
+  <aside id="sidebar">
+    <div class="brand-row">
+      <img class="brand-icon" src="./icon-app.png" alt="">
+      <span class="brand-name">TypX</span>
     </div>
-    <label class="chk"><input type="checkbox" id="chk-sync" checked> 同步滚动</label>
-    <div class="spacer"></div>
-    <button id="btn-copy-md" class="btn">复制 Markdown</button>
-    <button id="btn-copy-zhihu" class="btn">复制到知乎</button>
-    <button id="btn-copy-rich" class="btn btn-primary">复制到公众号</button>
-  </header>
 
-  <div class="main">
-    <aside id="sidebar">
-      <div class="sidebar-head">
-        <button id="btn-project" class="project-btn" title="切换 / 管理项目"><span id="sidebar-title">项目</span><span class="caret">▾</span></button>
-        <span id="sidebar-count" class="muted"></span>
+    <div class="project-row">
+      <button id="btn-project" class="project-btn" title="项目与同步">
+        <span id="sidebar-title">项目</span>
+        <svg class="ui-icon chevron" aria-hidden="true"><use href="#icon-chevron-down"/></svg>
+      </button>
+      <span id="project-sync-state" class="project-sync-state" hidden>
+        <span class="sync-symbol"><svg class="ui-icon" aria-hidden="true"><use href="#icon-cloud"/></svg><i><svg class="ui-icon" aria-hidden="true"><use href="#icon-check"/></svg></i></span>
+        <span id="project-sync-label">已同步</span>
+      </span>
+      <span id="sidebar-count" class="sidebar-count"></span>
+      <button id="btn-refresh" class="icon-btn" title="刷新项目" aria-label="刷新项目">
+        <svg class="ui-icon" aria-hidden="true"><use href="#icon-refresh"/></svg>
+      </button>
+    </div>
+
+    <div id="project-pop" hidden>
+      <div class="project-pop-head">
+        <strong id="project-pop-title">项目</strong>
+        <span id="project-pop-sync" class="project-pop-sync muted"><svg id="project-pop-sync-icon" class="ui-icon" aria-hidden="true"><use href="#icon-cloud"/></svg><span id="project-pop-sync-label">本地项目</span></span>
       </div>
-      <div id="project-pop" hidden>
+      <div class="menu-separator"></div>
+      <div id="sync-actions">
+        <button id="btn-sync-now" class="menu-row" hidden><span class="menu-label">立即同步</span><svg class="ui-icon menu-icon" aria-hidden="true"><use href="#icon-sync"/></svg></button>
+        <button id="btn-sync-open" class="menu-row" hidden><span class="menu-label">在坚果云中打开</span><svg class="ui-icon menu-icon" aria-hidden="true"><use href="#icon-external"/></svg></button>
+        <button id="btn-sync-settings" class="menu-row"><span class="menu-label">连接坚果云</span><svg class="ui-icon menu-icon" aria-hidden="true"><use href="#icon-sliders"/></svg></button>
+        <div class="menu-separator"></div>
+      </div>
+      <button id="btn-project-switch" class="menu-row menu-row-leading"><span class="menu-leading"><svg class="ui-icon menu-icon" aria-hidden="true"><use href="#icon-folder"/></svg><span>切换项目</span></span></button>
+      <div id="project-list-wrap" hidden>
         <div id="project-list"></div>
-        <button id="btn-project-add" class="btn">＋ 打开新文件夹…</button>
+        <button id="btn-project-add" class="menu-row menu-row-add menu-row-leading"><span class="menu-leading"><svg class="ui-icon menu-icon" aria-hidden="true"><use href="#icon-open"/></svg><span>打开新文件夹…</span></span></button>
       </div>
-      <div id="tree-empty" class="tree-empty">打开文件夹后会登记为项目，<br>这里会列出所有 Markdown 文件</div>
-      <div id="file-tree"></div>
-    </aside>
+      <button id="btn-sync-disconnect" class="menu-row danger-row" hidden>断开同步</button>
+    </div>
+
+    <div id="tree-empty" class="tree-empty">打开文件夹后会登记为项目，<br>这里会列出所有 Markdown 文件</div>
+    <div id="file-tree"></div>
+
+    <div class="sidebar-bottom">
+      <button id="btn-open" class="sidebar-action">
+        <svg class="ui-icon" aria-hidden="true"><use href="#icon-folder"/></svg>
+        <span>打开文件夹</span>
+      </button>
+      <button id="btn-settings" class="sidebar-action">
+        <svg class="ui-icon" aria-hidden="true"><use href="#icon-settings"/></svg>
+        <span>设置</span>
+      </button>
+    </div>
+  </aside>
+
+  <section class="workspace">
+    <header class="document-bar">
+      <div class="document-identity">
+        <span id="status-path">未打开文件夹</span>
+        <span id="status-dirty" class="ok"><i></i>已保存</span>
+      </div>
+      <div class="view-switch" id="view-switch" aria-label="视图模式">
+        <button data-view="edit" title="只看编辑器">编辑</button>
+        <button data-view="split" title="编辑 + 预览">分屏</button>
+        <button data-view="preview" title="只看预览">预览</button>
+      </div>
+    </header>
+
+    <div class="main">
 
     <div id="file-menu" hidden>
-      <button id="fm-mark-published">✅ 标记为已发布公众号</button>
-      <button id="fm-open-default">📤 用默认程序打开</button>
-      <button id="fm-show-folder">📁 在资源管理器中显示</button>
+      <button id="fm-mark-published"><svg class="ui-icon" aria-hidden="true"><use href="#icon-check"/></svg><span id="fm-mark-label">标记为已发布公众号</span></button>
+      <button id="fm-open-default"><svg class="ui-icon" aria-hidden="true"><use href="#icon-external"/></svg><span>用默认程序打开</span></button>
+      <button id="fm-show-folder"><svg class="ui-icon" aria-hidden="true"><use href="#icon-folder"/></svg><span>在资源管理器中显示</span></button>
     </div>
 
     <section class="pane" id="editor-pane">
-      <div class="pane-head"><span id="editor-title">编辑器</span></div>
+      <div class="pane-head">
+        <span class="pane-title">Markdown</span>
+        <div class="pane-actions">
+          <button id="btn-copy-md" class="text-action">复制 Markdown</button>
+          <button class="icon-btn" title="更多编辑操作" aria-label="更多编辑操作">
+            <svg class="ui-icon" aria-hidden="true"><use href="#icon-more-vertical"/></svg>
+          </button>
+        </div>
+      </div>
       <div class="pane-body"><div id="editor"></div></div>
     </section>
 
     <section class="pane" id="preview-pane">
-      <div class="pane-head"><span>预览</span><span class="muted" id="preview-theme-name"></span></div>
+      <div class="pane-head preview-head">
+        <span class="pane-title">排版预览</span>
+        <div class="pane-actions publish-actions">
+          <label class="theme-select-wrap" title="预览主题">
+            <select id="sel-theme"></select>
+            <svg class="ui-icon" aria-hidden="true"><use href="#icon-chevron-down"/></svg>
+          </label>
+          <span id="preview-theme-name" hidden></span>
+          <button id="btn-css" class="icon-btn" title="发布设置" aria-label="发布设置">
+            <svg class="ui-icon" aria-hidden="true"><use href="#icon-sliders"/></svg>
+          </button>
+          <label class="icon-toggle" title="同步滚动">
+            <input type="checkbox" id="chk-sync" checked>
+            <svg class="ui-icon" aria-hidden="true"><use href="#icon-refresh"/></svg>
+          </label>
+          <div class="copy-split">
+            <button id="btn-copy-rich" class="copy-main">复制到公众号</button>
+            <button id="btn-copy-menu" class="copy-caret" title="选择复制目标" aria-label="选择复制目标">
+              <svg class="ui-icon" aria-hidden="true"><use href="#icon-chevron-down"/></svg>
+            </button>
+            <div id="copy-menu" class="copy-menu" hidden>
+              <button id="btn-copy-wechat-menu" data-platform="wechat"><span>复制到公众号</span><kbd>Ctrl+Enter</kbd><i class="menu-check"></i></button>
+              <button id="btn-copy-zhihu" data-platform="zhihu"><span>复制到知乎</span><i class="menu-check"></i></button>
+              <div class="menu-separator"></div>
+              <button id="btn-copy-md-menu"><span>复制 Markdown</span></button>
+              <div class="menu-separator"></div>
+              <button id="btn-publish-settings"><span>发布设置…</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="pane-body"><iframe id="preview" sandbox="allow-same-origin" title="preview"></iframe></div>
     </section>
-  </div>
+    </div>
 
+  </section>
   <footer class="statusbar">
-    <span id="status-path">未打开文件夹</span>
-    <span id="status-count"></span>
-    <span id="status-dirty" class="ok">已保存</span>
+    <span id="status-position">第 1 行，第 1 列</span>
     <span class="spacer"></span>
-    <span class="muted">Ctrl+S 保存 · F10 开发者工具</span>
+    <span id="status-count">0 字</span>
+    <span>·</span><span>UTF-8</span><span>·</span><span>Markdown</span>
   </footer>
 </div>
 
 <div id="modal-mask" hidden>
   <div class="modal">
-    <h3>自定义主题样式</h3>
+    <h3>发布与主题设置</h3>
     <div class="modal-body">
       <div class="row">
         <label for="theme-name">主题名称</label>
@@ -93,6 +182,8 @@
           <button data-p="zhihu">知乎</button>
         </div>
         <span class="muted" style="font-size:12px">两个平台的管线独立，选项各自生效</span>
+        <div class="spacer"></div>
+        <button id="btn-host" class="btn">图床设置</button>
       </div>
       <div class="row">
         <label for="sel-math-mode">公式复制</label>
@@ -121,7 +212,7 @@
 
 <div id="host-modal-mask" hidden>
   <div class="modal">
-    <h3>☁ 图床设置</h3>
+    <h3>图床设置</h3>
     <div class="modal-body">
       <div class="muted" style="font-size:12px;line-height:1.7">
         公众号会过滤粘贴内容里的 base64 图片——本地图片和公式截图需要先上传图床换成 https 外链，粘贴时公众号自动转存。<br>
@@ -179,6 +270,34 @@
       <div class="spacer"></div>
       <button id="btn-host-cancel" class="btn">取消</button>
       <button id="btn-host-save" class="btn btn-primary">保存</button>
+    </div>
+  </div>
+</div>
+
+<div id="sync-modal-mask" hidden>
+  <div class="modal sync-modal">
+    <h3>坚果云同步</h3>
+    <div class="modal-body">
+      <div class="sync-intro">
+        TypX 会继续在本地项目中编辑，并通过坚果云 WebDAV 在后台同步整个项目。请使用坚果云账号邮箱和单独生成的“第三方应用密码”，不要填写登录密码。
+      </div>
+      <div class="form-grid">
+        <label for="sync-username">账号邮箱</label>
+        <input id="sync-username" type="text" autocomplete="username" placeholder="name@example.com">
+        <label for="sync-password">应用密码</label>
+        <input id="sync-password" type="password" autocomplete="new-password" placeholder="坚果云第三方应用密码">
+        <label for="sync-remote-path">云端目录</label>
+        <input id="sync-remote-path" type="text" placeholder="/TypX/项目名">
+      </div>
+      <label class="chk"><input id="sync-auto" type="checkbox" checked> 保存文件后自动同步</label>
+      <div class="sync-note">首次连接采用安全合并：本地独有文件上传，云端独有文件下载；同名且内容不同的文件会保留冲突副本，不会静默覆盖。</div>
+      <div id="sync-test-result" class="sync-result" hidden></div>
+    </div>
+    <div class="modal-foot">
+      <button id="btn-sync-help" class="btn">如何生成应用密码</button>
+      <div class="spacer"></div>
+      <button id="btn-sync-cancel" class="btn">取消</button>
+      <button id="btn-sync-connect" class="btn btn-primary">连接并同步</button>
     </div>
   </div>
 </div>

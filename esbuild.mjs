@@ -42,6 +42,7 @@ await build({
 });
 
 await cp('src/renderer/index.html', 'dist/renderer/index.html');
+await cp('assets/icon.png', 'dist/renderer/icon-app.png');
 
 // KaTeX：预览 iframe 通过 <link href="katex.min.css"> 引用，字体按其相对路径解析
 await cp('node_modules/katex/dist/katex.min.css', 'dist/renderer/katex.min.css');
