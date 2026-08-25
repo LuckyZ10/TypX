@@ -10,7 +10,7 @@
 
 Markdown Nice（mdnice）的本地文件夹版：Electron + TypeScript 编写。默认完全在本机工作，也可按项目选择连接坚果云 WebDAV。
 
-📖 **[完整使用教程](docs/使用教程.md)** ｜ ⬇️ **[下载免安装便携版](https://github.com/LuckyZ10/TypX/releases/latest)**
+📖 **[完整使用教程（含界面截图）](docs/使用教程.md)** ｜ ⬇️ **[下载 Windows 安装包 / 便携版](https://github.com/LuckyZ10/TypX/releases/latest)**
 
 <br />
 
@@ -19,6 +19,13 @@ Markdown Nice（mdnice）的本地文件夹版：Electron + TypeScript 编写。
 ![TypX 主界面：左侧项目文件树 · 中间 Markdown 编辑器 · 右侧主题排版预览](docs/images/ui.png)
 
 左侧是项目与文章，中间是 Markdown 编辑器，右侧是实时排版预览；项目/文档/发布操作各自集中在固定区域。打开过的文件夹自动登记为**项目**，启动时恢复最近项目和上次编辑到一半的文章。
+
+<table>
+  <tr>
+    <td><img src="docs/images/guide-project-menu.png" alt="项目与坚果云菜单" /><br /><sub><b>项目操作</b>：切换文件夹、连接坚果云</sub></td>
+    <td><img src="docs/images/guide-copy-menu.png" alt="平台复制菜单" /><br /><sub><b>发布操作</b>：公众号、知乎、Markdown 共用一个入口</sub></td>
+  </tr>
+</table>
 
 ## 主题
 
@@ -67,7 +74,9 @@ Markdown Nice（mdnice）的本地文件夹版：Electron + TypeScript 编写。
 
 ## 快速开始
 
-**免安装便携版**：[Releases](https://github.com/LuckyZ10/TypX/releases/latest) 下载 zip，解压运行 `TypX.exe`，删除文件夹即卸载。
+**Windows 安装包（推荐）**：[Releases](https://github.com/LuckyZ10/TypX/releases/latest) 下载 `TypX Setup x.x.x.exe`，通过安装向导选择目录并安装。
+
+**免安装便携版**：下载 portable zip，解压运行 `TypX.exe`，删除文件夹即卸载。
 
 **源码运行**：
 
@@ -78,7 +87,7 @@ npm run dev        # 构建并启动
 
 > 国内网络 Electron 下载失败时：`ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ npm install`
 
-更多命令与打包：`npm run typecheck` / `npm run build` / `npm run dist:dir`（便携版打包），详见[使用教程](docs/使用教程.md)。
+更多命令与打包：`npm run typecheck` / `npm run build` / `npm run dist`（安装包）/ `npm run dist:dir`（便携版），详见[使用教程](docs/使用教程.md)。
 
 ## 已知平台限制
 

@@ -48,10 +48,15 @@ await page.waitForTimeout(500);
 assert.match(await page.locator('#status-path').innerText(), /test-docs/);
 assert.equal(await page.locator('#preview').evaluate((frame) => frame.contentDocument?.querySelectorAll('h1').length), 1);
 
+await page.evaluate((markdown) => window.__typx.setMarkdown(markdown), demoMarkdown);
+await page.evaluate(() => window.__typx.setTheme('clean'));
+await page.waitForTimeout(600);
+
 await page.click('#btn-copy-menu');
 assert.equal(await page.locator('#copy-menu').isVisible(), true);
 assert.equal(await page.locator('#copy-menu button').count(), 4);
 await page.screenshot({ path: path.resolve('docs/design/typx-ui-implemented-copy-menu.png') });
+await page.locator('#preview-pane').screenshot({ path: path.resolve('docs/images/guide-copy-menu.png') });
 await page.click('#btn-copy-menu');
 assert.equal(await page.locator('#copy-menu').isVisible(), false);
 
@@ -59,26 +64,41 @@ await page.click('#btn-project');
 assert.equal(await page.locator('#project-pop').isVisible(), true);
 assert.equal(await page.locator('#btn-project-switch').isVisible(), true);
 await page.screenshot({ path: path.resolve('docs/design/typx-ui-implemented-project-menu.png') });
+await page.locator('#sidebar').screenshot({ path: path.resolve('docs/images/guide-project-menu.png') });
 await page.click('#btn-sync-settings');
 assert.equal(await page.locator('#sync-modal-mask').isVisible(), true);
 await page.screenshot({ path: path.resolve('docs/design/typx-ui-implemented-sync-modal.png') });
+await page.locator('#sync-modal-mask .sync-modal').screenshot({ path: path.resolve('docs/images/guide-nutstore-sync.png') });
 await page.click('#btn-sync-cancel');
 
 await page.click('#btn-settings');
 assert.equal(await page.locator('#modal-mask').isVisible(), true);
+await page.fill('#theme-name', '简约白 - 我的主题');
+await page.fill('#footnote', '本文使用 TypX 排版');
+await page.fill('#footer-input', '继续阅读：[TypX 使用教程](https://example.com/typx-guide)');
+await page.locator('#modal-mask .modal').screenshot({ path: path.resolve('docs/images/guide-settings.png') });
+await page.click('#btn-host');
+assert.equal(await page.locator('#host-modal-mask').isVisible(), true);
+await page.click('#host-prov [data-p="gitee"]');
+await page.locator('#host-modal-mask .modal').screenshot({ path: path.resolve('docs/images/guide-image-host.png') });
+await page.click('#btn-host-cancel');
 await page.click('#btn-theme-cancel');
 
 await page.click('#view-switch [data-view="edit"]');
 assert.equal(await page.locator('#preview-pane').isVisible(), false);
+await page.screenshot({ path: path.resolve('docs/images/guide-view-edit.png') });
 await page.click('#view-switch [data-view="preview"]');
 assert.equal(await page.locator('#editor-pane').isVisible(), false);
+await page.screenshot({ path: path.resolve('docs/images/guide-view-preview.png') });
 await page.click('#view-switch [data-view="split"]');
 assert.equal(await page.locator('#editor-pane').isVisible(), true);
 assert.equal(await page.locator('#preview-pane').isVisible(), true);
 
-await page.evaluate((markdown) => window.__typx.setMarkdown(markdown), demoMarkdown);
-await page.evaluate(() => window.__typx.setTheme('clean'));
-await page.waitForTimeout(600);
+await firstFile.click({ button: 'right' });
+assert.equal(await page.locator('#file-menu').isVisible(), true);
+await page.screenshot({ path: path.resolve('docs/images/guide-file-menu.png') });
+await page.locator('.document-bar').click();
+assert.equal(await page.locator('#file-menu').isVisible(), false);
 await page.screenshot({ path: path.resolve('docs/design/typx-ui-implemented.png') });
 await page.screenshot({ path: path.resolve('docs/images/ui.png') });
 assert.deepEqual(pageErrors, []);
@@ -88,6 +108,7 @@ console.log('PASS project/file/preview');
 console.log('PASS project and publish menus');
 console.log('PASS settings and sync modal');
 console.log('PASS edit/split/preview modes');
+console.log('SHOT 8 user-guide images');
 console.log('SHOT docs/design/typx-ui-implemented.png');
 console.log('SHOT docs/images/ui.png');
 await browser.close();

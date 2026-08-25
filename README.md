@@ -10,7 +10,7 @@
 
 A local-folder edition of Markdown Nice (mdnice), built with Electron + TypeScript. It works fully locally by default, with optional per-project Nutstore WebDAV sync.
 
-📖 **[Full User Guide (中文)](docs/使用教程.md)** ｜ ⬇️ **[Download portable build](https://github.com/LuckyZ10/TypX/releases/latest)**
+📖 **[Full User Guide with screenshots (中文)](docs/使用教程.md)** ｜ ⬇️ **[Download Windows installer / portable build](https://github.com/LuckyZ10/TypX/releases/latest)**
 
 <br />
 
@@ -19,6 +19,13 @@ A local-folder edition of Markdown Nice (mdnice), built with Electron + TypeScri
 ![TypX main window: project file tree · Markdown editor · themed preview](docs/images/ui.png)
 
 Projects and articles live on the left, the Markdown editor in the middle, and the themed preview on the right. Project, document, and publishing actions each have a consistent home. Every folder you open is registered as a **project**; TypX restores the most recent project and article on startup.
+
+<table>
+  <tr>
+    <td><img src="docs/images/guide-project-menu.png" alt="Project and Nutstore menu" /><br /><sub><b>Project actions</b>: switch folders and connect Nutstore</sub></td>
+    <td><img src="docs/images/guide-copy-menu.png" alt="Publishing target menu" /><br /><sub><b>Publishing actions</b>: WeChat, Zhihu, and Markdown share one entry point</sub></td>
+  </tr>
+</table>
 
 ## Themes
 
@@ -67,7 +74,9 @@ The top-right split button remembers the last copy target; its dropdown switches
 
 ## Getting Started
 
-**Portable build**: grab a zip from [Releases](https://github.com/LuckyZ10/TypX/releases/latest), unpack, run `TypX.exe`. Delete the folder to uninstall.
+**Windows installer (recommended)**: download `TypX Setup x.x.x.exe` from [Releases](https://github.com/LuckyZ10/TypX/releases/latest), then choose the destination folder in the setup wizard.
+
+**Portable build**: grab the portable zip, unpack, and run `TypX.exe`. Delete the folder to uninstall.
 
 **From source**:
 
@@ -78,7 +87,7 @@ npm run dev        # build & launch
 
 > If Electron download fails on CN networks: `ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ npm install`
 
-More commands: `npm run typecheck` / `npm run build` / `npm run dist:dir` (portable pack). See the [user guide](docs/使用教程.md) (Chinese) for details.
+More commands: `npm run typecheck` / `npm run build` / `npm run dist` (installer) / `npm run dist:dir` (portable pack). See the [user guide](docs/使用教程.md) (Chinese) for details.
 
 ## Known Platform Limits
 
