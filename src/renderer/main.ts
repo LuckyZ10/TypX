@@ -18,6 +18,7 @@ let prefs: Prefs = {
   footnote: '',
   syncScroll: true,
   editorFontSize: 15,
+  markdownSyntaxHints: true,
   embedImages: true,
   mathMode: 'svg',
   imageHost: { type: 'off', token: '', repo: '', branch: 'master', dir: 'typx', urlStyle: 'jsdelivr' },
@@ -793,7 +794,7 @@ async function refreshUpdateState(): Promise<void> {
   try {
     renderUpdateState(await window.api.getUpdateState());
   } catch (error) {
-    renderUpdateState({ status: 'error', currentVersion: updateState.currentVersion || '0.6.2', message: `读取更新状态失败：${(error as Error).message}` });
+    renderUpdateState({ status: 'error', currentVersion: updateState.currentVersion || '未知', message: `读取更新状态失败：${(error as Error).message}` });
   }
 }
 
@@ -846,12 +847,13 @@ function wirePreviewSourceNavigation(): void {
     if (!source) return;
 
     const offset = Number(source.dataset.sourceOffset);
+    const sourceEnd = Number(source.dataset.sourceEnd);
     if (!Number.isFinite(offset)) return;
     ev.preventDefault();
     ev.stopPropagation();
 
     if (prefs.viewMode === 'preview') setViewMode('edit');
-    window.requestAnimationFrame(() => editor.focusAt(offset));
+    window.requestAnimationFrame(() => editor.focusAt(offset, Number.isFinite(sourceEnd) ? sourceEnd : offset));
   });
 }
 
@@ -916,6 +918,12 @@ function wireEvents(): void {
     closeAppSettings();
     $('#btn-css').click();
   });
+  $('#chk-markdown-hints').addEventListener('change', () => {
+    prefs.markdownSyntaxHints = ($('#chk-markdown-hints') as HTMLInputElement).checked;
+    editor.setSyntaxHintsEnabled(prefs.markdownSyntaxHints);
+    persistPrefsSoon();
+    toast(`Markdown 语法提醒已${prefs.markdownSyntaxHints ? '开启' : '关闭'}`);
+  });
   $('#btn-check-update').addEventListener('click', async () => {
     try {
       renderUpdateState(await window.api.checkForUpdates());
@@ -967,7 +975,7 @@ function wireEvents(): void {
     true,
   );
 
-  // 文件树右键菜单：发布标记 / 默认程序打开 / 资源管理器定位
+  // 文件树右键菜单：发布标记 / 默认程序打开 / 资源管理器定位 / 复制绝对路径
   const fileMenu = $('#file-menu');
   const markLabel = $('#fm-mark-label');
   let menuFilePath: string | null = null;
@@ -984,9 +992,12 @@ function wireEvents(): void {
     menuFilePath = f.absPath;
     menuFileRel = f.relPath;
     markLabel.textContent = isPublished(f.relPath) ? '取消已发布标记' : '标记为已发布公众号';
-    fileMenu.style.left = `${Math.min(ev.clientX, window.innerWidth - 190)}px`;
-    fileMenu.style.top = `${Math.min(ev.clientY, window.innerHeight - 128)}px`;
     fileMenu.hidden = false;
+    const menuGap = 8;
+    const maxLeft = Math.max(menuGap, window.innerWidth - fileMenu.offsetWidth - menuGap);
+    const maxTop = Math.max(menuGap, window.innerHeight - fileMenu.offsetHeight - menuGap);
+    fileMenu.style.left = `${Math.max(menuGap, Math.min(ev.clientX, maxLeft))}px`;
+    fileMenu.style.top = `${Math.max(menuGap, Math.min(ev.clientY, maxTop))}px`;
   });
   document.addEventListener('click', (ev) => {
     if (!(ev.target as HTMLElement).closest('#file-menu')) closeFileMenu();
@@ -1015,6 +1026,13 @@ function wireEvents(): void {
     const p = menuFilePath;
     closeFileMenu();
     if (p) void window.api.showInFolder(p);
+  });
+  $('#fm-copy-path').addEventListener('click', async () => {
+    const p = menuFilePath;
+    closeFileMenu();
+    if (!p) return;
+    await window.api.copyText(p);
+    toast('已复制文件路径');
   });
 
   $('#sel-theme').addEventListener('change', () => {
@@ -1309,7 +1327,7 @@ function wireEvents(): void {
   }
   document.documentElement.style.setProperty('--cm-font-size', `${prefs.editorFontSize}px`);
 
-  editor = createEditor($('#editor'), onDoc, onEditorScrollRatio, onCursor);
+  editor = createEditor($('#editor'), onDoc, onEditorScrollRatio, onCursor, prefs.markdownSyntaxHints !== false);
   projectSync = createProjectSyncController({
     getContext: () => {
       const project = findProject(folder);
@@ -1322,6 +1340,7 @@ function wireEvents(): void {
     closeProjectMenu: () => toggleProjectPop(false),
   });
   rebuildThemeSelect();
+  ($('#chk-markdown-hints') as HTMLInputElement).checked = prefs.markdownSyntaxHints !== false;
   ($('#chk-sync') as HTMLInputElement).checked = prefs.syncScroll;
   setViewMode(prefs.viewMode);
   wireEvents();
@@ -1374,8 +1393,21 @@ function wireEvents(): void {
     previewFrameRect: (): DOMRect => preview.getBoundingClientRect(),
     editorState: () => ({
       offset: editor.view.state.selection.main.head,
+      from: editor.view.state.selection.main.from,
+      to: editor.view.state.selection.main.to,
+      selectedText: editor.view.state.sliceDoc(editor.view.state.selection.main.from, editor.view.state.selection.main.to),
       viewMode: prefs.viewMode,
     }),
+    syntaxWarnings: () => editor.getSyntaxWarnings().map((warning) => ({
+      from: warning.from,
+      to: warning.to,
+      message: warning.message,
+    })),
+    setSyntaxHints(enabled: boolean): void {
+      prefs.markdownSyntaxHints = enabled;
+      ($('#chk-markdown-hints') as HTMLInputElement).checked = enabled;
+      editor.setSyntaxHintsEnabled(enabled);
+    },
   };
 
   previewBody = welcomeHtml();

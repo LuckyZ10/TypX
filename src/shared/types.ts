@@ -85,6 +85,8 @@ export interface Prefs {
   footnote: string;
   syncScroll: boolean;
   editorFontSize: number;
+  /** 对没有形成粗体的可疑 ** 做非侵入式提醒，不自动修改原文 */
+  markdownSyntaxHints: boolean;
   /** 复制时把本地图片读取为 base64 data URI 一并放进剪贴板（公众号 / 知乎粘贴后不丢图） */
   embedImages: boolean;
   /** 复制时公式的处理方式：svg=行内 SVG（推荐，微信支持）/ image=截图 PNG（走图床）/ off=原样 HTML */

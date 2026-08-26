@@ -12,6 +12,7 @@ const DEFAULTS: Prefs = {
   footnote: '',
   syncScroll: true,
   editorFontSize: 15,
+  markdownSyntaxHints: true,
   embedImages: true,
   mathMode: 'svg',
   imageHost: { type: 'off', token: '', repo: '', branch: 'master', dir: 'typx', urlStyle: 'jsdelivr' },

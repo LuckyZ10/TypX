@@ -151,28 +151,30 @@ function wireUpdaterEvents(): void {
 
 async function runMockCheck(): Promise<UpdateState> {
   if (checking || state.status === 'downloading') return state;
+  const current = parseVersion(app.getVersion());
+  const mockVersion = current ? `${current[0]}.${current[1]}.${current[2] + 1}` : '新版本';
   checking = true;
   publish({ status: 'checking', currentVersion: app.getVersion(), message: '正在检查更新…' });
   await new Promise((resolve) => setTimeout(resolve, 180));
-  publish({ status: 'available', currentVersion: app.getVersion(), version: '0.6.3', message: '发现 TypX 0.6.3，准备下载…' });
+  publish({ status: 'available', currentVersion: app.getVersion(), version: mockVersion, message: `发现 TypX ${mockVersion}，准备下载…` });
   for (const percent of [18, 52, 86, 100]) {
     await new Promise((resolve) => setTimeout(resolve, 100));
     publish({
       status: 'downloading',
       currentVersion: app.getVersion(),
-      version: '0.6.3',
+      version: mockVersion,
       percent,
       transferred: percent,
       total: 100,
-      message: '正在下载 TypX 0.6.3',
+      message: `正在下载 TypX ${mockVersion}`,
     });
   }
   checking = false;
   return publish({
     status: 'downloaded',
     currentVersion: app.getVersion(),
-    version: '0.6.3',
-    message: 'TypX 0.6.3 已下载，重启后即可完成更新',
+    version: mockVersion,
+    message: `TypX ${mockVersion} 已下载，重启后即可完成更新`,
   });
 }
 

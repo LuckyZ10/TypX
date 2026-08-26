@@ -417,6 +417,13 @@ details.tree-dir > div { padding-left: 16px; }
 .settings-entry-action { display: flex; align-items: center; gap: 8px; }
 .settings-entry-action .btn { min-width: 92px; }
 .settings-entry-action .btn:disabled { cursor: default; opacity: .58; }
+.settings-toggle { position: relative; display: inline-flex; cursor: pointer; }
+.settings-toggle input { position: absolute; opacity: 0; pointer-events: none; }
+.settings-toggle span { position: relative; display: block; width: 40px; height: 23px; border-radius: 999px; background: #d8d8d2; transition: background .16s ease; }
+.settings-toggle span::after { position: absolute; top: 3px; left: 3px; width: 17px; height: 17px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(24,24,22,.22); content: ""; transition: transform .16s ease; }
+.settings-toggle input:checked + span { background: #2e6d50; }
+.settings-toggle input:checked + span::after { transform: translateX(17px); }
+.settings-toggle input:focus-visible + span { outline: 2px solid rgba(24, 88, 180, .35); outline-offset: 2px; }
 .update-progress { width: min(270px, 100%); height: 4px; margin-top: 10px; overflow: hidden; border-radius: 999px; background: #e8e8e3; }
 .update-progress span { display: block; width: 0; height: 100%; border-radius: inherit; background: #2e6d50; transition: width .2s ease; }
 .settings-footnote { color: var(--muted); font-size: 11.5px; }

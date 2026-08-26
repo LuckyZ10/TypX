@@ -16,6 +16,7 @@
   <symbol id="icon-check" viewBox="0 0 20 20"><path d="m5.8 10.25 2.75 2.75 5.65-6"/></symbol>
   <symbol id="icon-folder" viewBox="0 0 20 20"><path d="M2.75 5.45h5.1l1.55 1.8h7.85v8.45H2.75z"/><path d="M2.75 7.25V4.15h5.1l1.45 1.3"/></symbol>
   <symbol id="icon-file" viewBox="0 0 20 20"><path d="M5 2.75h6.1L15.25 7v10.25H5z"/><path d="M11.1 2.75V7h4.15"/></symbol>
+  <symbol id="icon-copy" viewBox="0 0 20 20"><rect x="6.25" y="6.25" width="10.5" height="10.5" rx="1.5"/><path d="M13.75 6.25v-2A1.5 1.5 0 0 0 12.25 2.75h-8a1.5 1.5 0 0 0-1.5 1.5v8a1.5 1.5 0 0 0 1.5 1.5h2"/></symbol>
   <symbol id="icon-settings" viewBox="0 0 20 20"><path d="M3.25 6h4M11.75 6h5M3.25 14h5M12.75 14h4"/><circle cx="9.5" cy="6" r="2.15"/><circle cx="10.5" cy="14" r="2.15"/></symbol>
   <symbol id="icon-sliders" viewBox="0 0 20 20"><path d="M4 5h4M12 5h4M4 10h8M16 10h0M4 15h2M10 15h6"/><circle cx="10" cy="5" r="1.65"/><circle cx="14" cy="10" r="1.65"/><circle cx="8" cy="15" r="1.65"/></symbol>
   <symbol id="icon-external" viewBox="0 0 20 20"><path d="M16 10.5v5.25a1.5 1.5 0 0 1-1.5 1.5H4.25a1.5 1.5 0 0 1-1.5-1.5V5.5A1.5 1.5 0 0 1 4.25 4H9.5"/><path d="M12 2.75h5.25V8M10 10l7.25-7.25"/></symbol>
@@ -99,6 +100,7 @@
       <button id="fm-mark-published"><svg class="ui-icon" aria-hidden="true"><use href="#icon-check"/></svg><span id="fm-mark-label">标记为已发布公众号</span></button>
       <button id="fm-open-default"><svg class="ui-icon" aria-hidden="true"><use href="#icon-external"/></svg><span>用默认程序打开</span></button>
       <button id="fm-show-folder"><svg class="ui-icon" aria-hidden="true"><use href="#icon-folder"/></svg><span>在资源管理器中显示</span></button>
+      <button id="fm-copy-path"><svg class="ui-icon" aria-hidden="true"><use href="#icon-copy"/></svg><span>复制文件路径</span></button>
     </div>
 
     <section class="pane" id="editor-pane">
@@ -180,6 +182,25 @@
           <div class="settings-entry-action">
             <button id="btn-check-update" class="btn">检查更新</button>
             <button id="btn-install-update" class="btn btn-primary" hidden>重启并安装</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="settings-group" aria-labelledby="settings-editor-title">
+        <div class="settings-group-title" id="settings-editor-title">编辑器</div>
+        <div class="settings-entry">
+          <div class="settings-entry-icon">
+            <svg class="ui-icon" aria-hidden="true"><use href="#icon-check"/></svg>
+          </div>
+          <div class="settings-entry-main">
+            <div class="settings-entry-title">Markdown 语法提醒</div>
+            <div class="settings-entry-caption">标记没有形成粗体的可疑 **，只提醒，不自动修改</div>
+          </div>
+          <div class="settings-entry-action">
+            <label class="settings-toggle" title="开启 Markdown 语法提醒">
+              <input id="chk-markdown-hints" type="checkbox" checked aria-label="开启 Markdown 语法提醒">
+              <span aria-hidden="true"></span>
+            </label>
           </div>
         </div>
       </section>
