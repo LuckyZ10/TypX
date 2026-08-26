@@ -4,7 +4,7 @@ import { renderMarkdown, mdFileUrlToPath, texToSvg } from './render';
 import { htmlToText, inlinePreviewStyles } from './inliner';
 import { BASE_CSS, BUILT_IN_THEMES, HLJS_CSS } from './themes';
 import { createProjectSyncController, type ProjectSyncController } from './project-sync';
-import type { CopyProfile, CustomTheme, FileEntry, ImageHostConfig, Prefs, Project, ViewMode } from '../shared/types';
+import type { CopyProfile, CustomTheme, FileEntry, ImageHostConfig, Prefs, Project, UpdateState, ViewMode } from '../shared/types';
 
 const $ = <T extends HTMLElement>(sel: string): T => document.querySelector(sel) as T;
 const preview = $('#preview') as HTMLIFrameElement;
@@ -39,6 +39,8 @@ let prefsTimer: number | undefined;
 let toastTimer: number | undefined;
 let projectSync!: ProjectSyncController;
 let previewBody = '';
+let updateState: UpdateState = { status: 'idle', currentVersion: '', message: '启动后会自动检查更新' };
+let previousUpdateStatus: UpdateState['status'] = 'idle';
 const expandedDirs = new Set<string>();
 
 const PREVIEW_SOURCE_NAV_CSS = `
@@ -747,6 +749,54 @@ function onDoc(value: string): void {
   scheduleRender();
 }
 
+/* ---------- 应用更新 ---------- */
+
+function renderUpdateState(next: UpdateState): void {
+  const wasDownloaded = previousUpdateStatus === 'downloaded';
+  previousUpdateStatus = next.status;
+  updateState = next;
+
+  $('#update-current-version').textContent = `当前版本 v${next.currentVersion}`;
+  $('#update-message').textContent = next.message ?? '';
+
+  const checkButton = $('#btn-check-update') as HTMLButtonElement;
+  const installButton = $('#btn-install-update') as HTMLButtonElement;
+  const progress = $('#update-progress');
+  const progressBar = $('#update-progress-bar');
+  const badge = $('#settings-update-badge');
+  const percent = Math.round(next.percent ?? 0);
+
+  checkButton.hidden = next.status === 'downloaded';
+  installButton.hidden = next.status !== 'downloaded';
+  checkButton.disabled = ['checking', 'available', 'downloading', 'unsupported'].includes(next.status);
+  progress.hidden = next.status !== 'available' && next.status !== 'downloading';
+  progressBar.style.width = `${next.status === 'available' ? 2 : percent}%`;
+
+  const labels: Partial<Record<UpdateState['status'], string>> = {
+    checking: '检查中…',
+    available: '准备下载…',
+    downloading: `${percent}%`,
+    'up-to-date': '再次检查',
+    error: '重试',
+    unsupported: '仅安装版',
+  };
+  checkButton.textContent = labels[next.status] ?? '检查更新';
+
+  const hasNewVersion = ['available', 'downloading', 'downloaded'].includes(next.status);
+  badge.hidden = !hasNewVersion;
+  badge.textContent = next.status === 'downloading' ? `${percent}%` : next.status === 'downloaded' ? '可安装' : '新版本';
+
+  if (next.status === 'downloaded' && !wasDownloaded) toast(`TypX ${next.version ?? '新版本'} 已下载，可在设置中重启安装`);
+}
+
+async function refreshUpdateState(): Promise<void> {
+  try {
+    renderUpdateState(await window.api.getUpdateState());
+  } catch (error) {
+    renderUpdateState({ status: 'error', currentVersion: updateState.currentVersion || '0.6.2', message: `读取更新状态失败：${(error as Error).message}` });
+  }
+}
+
 function copyMarkdown(): void {
   const value = editor.getValue();
   if (!value.trim()) {
@@ -850,7 +900,48 @@ function wireEvents(): void {
     if (!t.closest('#project-pop') && !t.closest('#btn-project')) toggleProjectPop(false);
   });
 
-  $('#btn-settings').addEventListener('click', () => $('#btn-css').click());
+  const appSettingsMask = $('#app-settings-mask');
+  const closeAppSettings = (): void => {
+    appSettingsMask.hidden = true;
+  };
+  $('#btn-settings').addEventListener('click', () => {
+    appSettingsMask.hidden = false;
+    void refreshUpdateState();
+  });
+  $('#btn-app-settings-close').addEventListener('click', closeAppSettings);
+  appSettingsMask.addEventListener('click', (event) => {
+    if (event.target === appSettingsMask) closeAppSettings();
+  });
+  $('#btn-open-publish-settings').addEventListener('click', () => {
+    closeAppSettings();
+    $('#btn-css').click();
+  });
+  $('#btn-check-update').addEventListener('click', async () => {
+    try {
+      renderUpdateState(await window.api.checkForUpdates());
+    } catch (error) {
+      renderUpdateState({ status: 'error', currentVersion: updateState.currentVersion, message: `检查更新失败：${(error as Error).message}` });
+    }
+  });
+  $('#btn-install-update').addEventListener('click', async () => {
+    if (dirty) {
+      await saveCurrent();
+      if (dirty) {
+        toast('请先保存当前文章，再安装更新');
+        return;
+      }
+    }
+    const button = $('#btn-install-update') as HTMLButtonElement;
+    button.disabled = true;
+    button.textContent = '正在重启…';
+    try {
+      await window.api.installUpdate();
+    } catch (error) {
+      button.disabled = false;
+      button.textContent = '重启并安装';
+      toast(`安装更新失败：${(error as Error).message}`);
+    }
+  });
 
   // 视图模式（编辑 / 分屏 / 预览）
   $('#view-switch').addEventListener('click', (ev) => {
@@ -1234,6 +1325,8 @@ function wireEvents(): void {
   ($('#chk-sync') as HTMLInputElement).checked = prefs.syncScroll;
   setViewMode(prefs.viewMode);
   wireEvents();
+  window.api.onUpdateState(renderUpdateState);
+  void refreshUpdateState();
 
   // 调试/测试钩子（--math-test 等自动化流程用，正常使用不涉及）；
   // 尽早注册，避免与测试脚本竞态

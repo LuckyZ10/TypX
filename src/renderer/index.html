@@ -75,6 +75,7 @@
       <button id="btn-settings" class="sidebar-action">
         <svg class="ui-icon" aria-hidden="true"><use href="#icon-settings"/></svg>
         <span>设置</span>
+        <span id="settings-update-badge" class="sidebar-badge" hidden>新版本</span>
       </button>
     </div>
   </aside>
@@ -156,6 +157,55 @@
     <span id="status-count">0 字</span>
     <span>·</span><span>UTF-8</span><span>·</span><span>Markdown</span>
   </footer>
+</div>
+
+<div id="app-settings-mask" hidden>
+  <div class="modal app-settings-modal" role="dialog" aria-modal="true" aria-labelledby="app-settings-title">
+    <h3 id="app-settings-title">设置</h3>
+    <div class="modal-body app-settings-body">
+      <section class="settings-group" aria-labelledby="settings-app-title">
+        <div class="settings-group-title" id="settings-app-title">应用</div>
+        <div class="settings-entry update-entry">
+          <div class="settings-entry-icon">
+            <svg class="ui-icon" aria-hidden="true"><use href="#icon-refresh"/></svg>
+          </div>
+          <div class="settings-entry-main">
+            <div class="settings-entry-title">软件更新</div>
+            <div id="update-current-version" class="settings-entry-caption">当前版本</div>
+            <div id="update-message" class="update-message">启动后会自动检查更新</div>
+            <div id="update-progress" class="update-progress" hidden>
+              <span id="update-progress-bar"></span>
+            </div>
+          </div>
+          <div class="settings-entry-action">
+            <button id="btn-check-update" class="btn">检查更新</button>
+            <button id="btn-install-update" class="btn btn-primary" hidden>重启并安装</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="settings-group" aria-labelledby="settings-publish-title">
+        <div class="settings-group-title" id="settings-publish-title">编辑与发布</div>
+        <div class="settings-entry">
+          <div class="settings-entry-icon">
+            <svg class="ui-icon" aria-hidden="true"><use href="#icon-sliders"/></svg>
+          </div>
+          <div class="settings-entry-main">
+            <div class="settings-entry-title">发布与主题</div>
+            <div class="settings-entry-caption">管理主题、编辑字号、图床和公众号 / 知乎复制方案</div>
+          </div>
+          <div class="settings-entry-action">
+            <button id="btn-open-publish-settings" class="btn">打开设置</button>
+          </div>
+        </div>
+      </section>
+    </div>
+    <div class="modal-foot">
+      <span class="settings-footnote">安装版支持自动更新；便携版需手动下载新版</span>
+      <div class="spacer"></div>
+      <button id="btn-app-settings-close" class="btn">完成</button>
+    </div>
+  </div>
 </div>
 
 <div id="modal-mask" hidden>

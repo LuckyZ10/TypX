@@ -1,7 +1,7 @@
 {
   "name": "typx",
   "productName": "TypX",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "本地 Markdown 排版工具 —— 读取本地文件夹，套用主题，一键复制到微信公众号 / 知乎",
   "main": "dist/main/index.js",
   "author": "TypX",
@@ -13,13 +13,17 @@
     "dev": "node esbuild.mjs && electron .",
     "start": "electron .",
     "smoke": "node esbuild.mjs && electron . --smoke",
+    "test:update-ui": "node esbuild.mjs && electron . --update-test",
+    "test:update-fallback": "node esbuild.mjs && electron . --update-fallback-test",
     "dist": "node esbuild.mjs && electron-builder --win",
+    "verify:update": "node scripts/verify-update-artifacts.mjs",
     "dist:dir": "node esbuild.mjs && node scripts/pack-portable.mjs"
   },
   "dependencies": {
     "@codemirror/lang-markdown": "^6.3.0",
     "codemirror": "^6.0.1",
     "dompurify": "^3.1.6",
+    "electron-updater": "^6.8.9",
     "highlight.js": "^11.10.0",
     "katex": "^0.18.4",
     "marked": "^14.1.2",
@@ -40,11 +44,20 @@
     "directories": {
       "output": "release"
     },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "LuckyZ10",
+        "repo": "TypX",
+        "releaseType": "release"
+      }
+    ],
     "files": [
       "dist/**/*"
     ],
     "win": {
       "target": "nsis",
+      "artifactName": "${productName}-Setup-${version}.${ext}",
       "icon": "assets/icon.ico"
     },
     "nsis": {

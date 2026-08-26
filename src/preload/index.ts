@@ -24,6 +24,14 @@ const api: TypXApi = {
   connectNutstore: (input) => ipcRenderer.invoke('sync:nutstore-connect', input),
   syncProject: (projectPath, config) => ipcRenderer.invoke('sync:project', projectPath, config),
   disconnectNutstore: (projectPath) => ipcRenderer.invoke('sync:nutstore-disconnect', projectPath),
+  getUpdateState: () => ipcRenderer.invoke('update:get-state'),
+  checkForUpdates: () => ipcRenderer.invoke('update:check'),
+  installUpdate: () => ipcRenderer.invoke('update:install'),
+  onUpdateState: (cb) => {
+    const listener = (_event: Electron.IpcRendererEvent, state: Parameters<typeof cb>[0]): void => cb(state);
+    ipcRenderer.on('update:state', listener);
+    return () => ipcRenderer.removeListener('update:state', listener);
+  },
 };
 
 contextBridge.exposeInMainWorld('api', api);

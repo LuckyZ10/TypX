@@ -97,6 +97,28 @@ export interface Prefs {
   copyTarget: 'wechat' | 'zhihu';
 }
 
+export type UpdateStatus =
+  | 'idle'
+  | 'checking'
+  | 'available'
+  | 'downloading'
+  | 'downloaded'
+  | 'up-to-date'
+  | 'error'
+  | 'unsupported';
+
+export interface UpdateState {
+  status: UpdateStatus;
+  currentVersion: string;
+  /** 发现的新版本号 */
+  version?: string;
+  /** 下载进度，0–100 */
+  percent?: number;
+  transferred?: number;
+  total?: number;
+  message?: string;
+}
+
 export interface TypXApi {
   selectFolder(): Promise<string | null>;
   listFiles(folder: string): Promise<FileEntry[]>;
@@ -125,6 +147,14 @@ export interface TypXApi {
   connectNutstore(input: SyncConnectInput): Promise<SyncResult>;
   syncProject(projectPath: string, config: ProjectSyncConfig): Promise<SyncResult>;
   disconnectNutstore(projectPath: string): Promise<void>;
+  /** 获取当前更新状态；便携版会返回 unsupported */
+  getUpdateState(): Promise<UpdateState>;
+  /** 立即向 GitHub Releases 检查新版本，发现后自动下载 */
+  checkForUpdates(): Promise<UpdateState>;
+  /** 重启应用并安装已经下载完成的版本 */
+  installUpdate(): Promise<void>;
+  /** 监听检查、下载与可安装状态；返回取消监听函数 */
+  onUpdateState(cb: (state: UpdateState) => void): () => void;
 }
 
 declare global {

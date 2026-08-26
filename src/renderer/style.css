@@ -294,6 +294,7 @@ details.tree-dir > div { padding-left: 16px; }
 .sidebar-action .ui-icon { width: 19px; height: 19px; color: #555550; stroke-width: 1.6; }
 .sidebar-action:last-child { border-bottom: 0; }
 .sidebar-action:hover { background: var(--hover); }
+.sidebar-badge { margin-left: auto; padding: 3px 7px; border-radius: 999px; color: #fff; background: #2e6d50; font-size: 10.5px; font-weight: 620; line-height: 1.25; }
 
 /* ---------- Workspace ---------- */
 
@@ -379,6 +380,7 @@ details.tree-dir > div { padding-left: 16px; }
 
 /* ---------- Modals ---------- */
 
+#app-settings-mask,
 #modal-mask,
 #host-modal-mask,
 #sync-modal-mask { position: fixed; inset: 0; z-index: 150; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(29, 29, 27, .38); backdrop-filter: blur(2px); }
@@ -399,6 +401,25 @@ details.tree-dir > div { padding-left: 16px; }
 #css-input { height: 300px; padding: 12px; resize: vertical; font-family: "Cascadia Code", Consolas, monospace; font-size: 12px; line-height: 1.55; white-space: pre; }
 #footer-input { flex: 1; height: 92px; padding: 9px 10px; resize: vertical; font-family: "Cascadia Code", Consolas, monospace; font-size: 12px; line-height: 1.5; }
 .modal-foot { display: flex; align-items: center; gap: 9px; padding: 15px 24px; border-top: 1px solid var(--border); background: #fdfdfc; }
+
+.app-settings-modal { width: min(620px, 94vw); }
+.app-settings-body { gap: 24px; padding-top: 18px; padding-bottom: 24px; }
+.settings-group { display: flex; flex-direction: column; gap: 7px; }
+.settings-group-title { padding: 0 4px; color: var(--muted); font-size: 11px; font-weight: 650; letter-spacing: .08em; }
+.settings-entry { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 13px; min-height: 82px; padding: 15px 16px; border: 1px solid var(--border); border-radius: 11px; background: #fdfdfc; }
+.settings-entry-icon { display: flex; width: 36px; height: 36px; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 9px; color: #4e4e49; background: #fff; }
+.settings-entry-icon .ui-icon { width: 19px; height: 19px; }
+.settings-entry-main { min-width: 0; }
+.settings-entry-title { font-size: 14px; font-weight: 640; }
+.settings-entry-caption,
+.update-message { margin-top: 4px; color: var(--secondary); font-size: 12px; line-height: 1.55; }
+.update-message { color: #555550; }
+.settings-entry-action { display: flex; align-items: center; gap: 8px; }
+.settings-entry-action .btn { min-width: 92px; }
+.settings-entry-action .btn:disabled { cursor: default; opacity: .58; }
+.update-progress { width: min(270px, 100%); height: 4px; margin-top: 10px; overflow: hidden; border-radius: 999px; background: #e8e8e3; }
+.update-progress span { display: block; width: 0; height: 100%; border-radius: inherit; background: #2e6d50; transition: width .2s ease; }
+.settings-footnote { color: var(--muted); font-size: 11.5px; }
 
 .host-prov { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .host-prov button { display: flex; min-height: 70px; flex-direction: column; align-items: flex-start; gap: 4px; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: #fff; cursor: pointer; text-align: left; }

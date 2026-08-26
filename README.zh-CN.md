@@ -74,7 +74,7 @@ Markdown Nice（mdnice）的本地文件夹版：Electron + TypeScript 编写。
 
 ## 快速开始
 
-**Windows 安装包（推荐）**：[Releases](https://github.com/LuckyZ10/TypX/releases/latest) 下载 `TypX Setup x.x.x.exe`，通过安装向导选择目录并安装。
+**Windows 安装包（推荐）**：[Releases](https://github.com/LuckyZ10/TypX/releases/latest) 下载 `TypX-Setup-x.x.x.exe`，通过安装向导选择目录并安装。从 **0.6.2** 起，手动安装这一次后，后续版本可在 TypX「设置」中自动检查、下载并覆盖原安装目录。
 
 **免安装便携版**：下载 portable zip，解压运行 `TypX.exe`，删除文件夹即卸载。
 

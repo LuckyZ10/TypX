@@ -2,6 +2,11 @@ import { app, BrowserWindow, Menu, nativeImage, protocol } from 'electron';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { setupIpc } from './ipc';
+import { scheduleStartupUpdateCheck, setupUpdater } from './updater';
+
+const isUpdateUiTest = process.argv.includes('--update-test') && !app.isPackaged;
+const isUpdateFallbackTest = process.argv.includes('--update-fallback-test') && !app.isPackaged;
+if (isUpdateUiTest || isUpdateFallbackTest) app.setPath('userData', path.join(app.getPath('temp'), `TypX-update-test-${process.pid}`));
 
 // mdfile:// 供预览里的本地图片使用；typx:// 承载渲染进程页面（拿到正常 origin，
 // srcdoc 预览 iframe 才能被父页面访问，用于把计算样式内联成行内样式）
@@ -360,6 +365,49 @@ async function createWindow(): Promise<void> {
   } else {
     await win.loadURL('typx://app/index.html');
   }
+
+  // 自动更新界面的端到端测试：使用 updater.ts 的本地状态模拟，
+  // 不连接 GitHub、不执行安装，只验证设置入口、下载进度和最终状态。
+  if (isUpdateUiTest) {
+    try {
+      await win.webContents.executeJavaScript(`document.querySelector('#btn-settings')?.click(); document.querySelector('#btn-check-update')?.click();`);
+      await new Promise((resolve) => setTimeout(resolve, 1_100));
+      const probe = (await win.webContents.executeJavaScript(`({
+        settingsVisible: !document.querySelector('#app-settings-mask')?.hidden,
+        currentVersion: document.querySelector('#update-current-version')?.textContent,
+        message: document.querySelector('#update-message')?.textContent,
+        installVisible: !document.querySelector('#btn-install-update')?.hidden,
+        badge: document.querySelector('#settings-update-badge')?.textContent,
+      })`)) as Record<string, unknown>;
+      const capture = await win.capturePage();
+      const output = path.join(app.getAppPath(), 'docs', 'images', 'guide-app-settings.png');
+      await fs.writeFile(output, capture.toPNG());
+      console.log('[update-test]', JSON.stringify(probe));
+      console.log('[update-test] screenshot', output);
+      setTimeout(() => app.quit(), 250);
+    } catch (error) {
+      console.log('[update-test] error', String(error));
+      app.exit(1);
+    }
+  }
+
+  if (isUpdateFallbackTest) {
+    try {
+      await win.webContents.executeJavaScript(`document.querySelector('#btn-settings')?.click(); document.querySelector('#btn-check-update')?.click();`);
+      await new Promise((resolve) => setTimeout(resolve, 3_500));
+      const probe = (await win.webContents.executeJavaScript(`({
+        currentVersion: document.querySelector('#update-current-version')?.textContent,
+        message: document.querySelector('#update-message')?.textContent,
+        checkLabel: document.querySelector('#btn-check-update')?.textContent,
+      })`)) as { message?: string };
+      console.log('[update-fallback-test]', JSON.stringify(probe));
+      if (probe.message !== '当前已是最新版本') throw new Error(`兜底状态不正确：${probe.message ?? '空'}`);
+      setTimeout(() => app.quit(), 250);
+    } catch (error) {
+      console.log('[update-fallback-test] error', String(error));
+      app.exit(1);
+    }
+  }
 }
 
 app.whenReady().then(() => {
@@ -398,7 +446,8 @@ app.whenReady().then(() => {
   });
 
   setupIpc(() => win);
-  void createWindow();
+  setupUpdater(() => win);
+  void createWindow().then(scheduleStartupUpdateCheck);
 });
 
 app.on('window-all-closed', () => app.quit());

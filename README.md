@@ -48,6 +48,7 @@ Projects and articles live on the left, the Markdown editor in the middle, and t
 
 - **Projects**: opened folders are auto-registered; switch between projects, auto-restore your last article; external changes reload automatically
 - **Optional Nutstore sync**: connect WebDAV per project, sync manually or after saves; passwords use the OS secure store, and concurrent changes are preserved as conflict copies
+- **Built-in updates (installer edition)**: checks GitHub Releases silently, downloads in the background, and installs into the existing location after restart; manual checking lives in Settings
 - **Three panes**: file tree (right-click to open in default app, reveal in Explorer, or flag as "published" with a green badge to avoid duplicate uploads) · CodeMirror 6 editor (Ctrl+S) · scroll-synced preview
 - **View modes**: edit / split / preview — preview hides the Markdown source for distraction-free reading
 
@@ -74,7 +75,9 @@ The top-right split button remembers the last copy target; its dropdown switches
 
 ## Getting Started
 
-**Windows installer (recommended)**: download `TypX Setup x.x.x.exe` from [Releases](https://github.com/LuckyZ10/TypX/releases/latest), then choose the destination folder in the setup wizard.
+**Windows installer (recommended)**: download `TypX-Setup-x.x.x.exe` from [Releases](https://github.com/LuckyZ10/TypX/releases/latest), then choose the destination folder in the setup wizard.
+
+Starting with **0.6.2**, the installed edition checks for updates automatically. Install 0.6.2 manually once; future releases can be downloaded and installed from inside TypX.
 
 **Portable build**: grab the portable zip, unpack, and run `TypX.exe`. Delete the folder to uninstall.
 
