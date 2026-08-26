@@ -7,6 +7,7 @@ export interface EditorHandle {
   view: EditorView;
   setValue(value: string): void;
   getValue(): string;
+  focusAt(offset: number): void;
 }
 
 const typxMarkdownHighlight = HighlightStyle.define([
@@ -70,5 +71,13 @@ export function createEditor(
       view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: value } });
     },
     getValue: () => view.state.doc.toString(),
+    focusAt(offset: number) {
+      const pos = Math.max(0, Math.min(offset, view.state.doc.length));
+      view.dispatch({
+        selection: { anchor: pos },
+        effects: EditorView.scrollIntoView(pos, { y: 'center' }),
+      });
+      view.focus();
+    },
   };
 }

@@ -41,6 +41,11 @@ let projectSync!: ProjectSyncController;
 let previewBody = '';
 const expandedDirs = new Set<string>();
 
+const PREVIEW_SOURCE_NAV_CSS = `
+#__typx [data-source-offset] { cursor: text; }
+#__typx [data-source-offset]:hover { outline: 1px solid rgba(42, 92, 170, .24); outline-offset: 4px; }
+`;
+
 /* ---------- 预览文档 ---------- */
 
 function escapeHtml(s: string): string {
@@ -55,7 +60,7 @@ function footnoteHtml(): string {
 function docHtml(css: string, body: string): string {
   // KaTeX 样式经 <link> 引入：srcdoc 会继承父页面 typx://app/ 作为基址，
   // 其内相对字体路径（fonts/*.woff2）也由 typx 协议提供
-  return `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><link rel="stylesheet" href="katex.min.css"><style>${BASE_CSS}${HLJS_CSS}${css}</style></head><body><div id="__typx">${body}</div></body></html>`;
+  return `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><link rel="stylesheet" href="katex.min.css"><style>${BASE_CSS}${HLJS_CSS}${css}${PREVIEW_SOURCE_NAV_CSS}</style></head><body><div id="__typx">${body}</div></body></html>`;
 }
 
 function currentPreviewHtml(cssOverride?: string): string {
@@ -96,6 +101,7 @@ function doRender(): void {
     const y = doc.defaultView.scrollY;
     root.innerHTML = previewBody + footnoteHtml();
     doc.defaultView.scrollTo(0, y);
+    wirePreviewSourceNavigation();
   } else {
     preview.srcdoc = currentPreviewHtml();
   }
@@ -779,6 +785,26 @@ function onEditorScrollRatio(r: number): void {
   if (denom > 1) w.scrollTo(0, r * denom);
 }
 
+function wirePreviewSourceNavigation(): void {
+  const doc = preview.contentDocument;
+  if (!doc || doc.documentElement.dataset.sourceNavigationReady === '1') return;
+  doc.documentElement.dataset.sourceNavigationReady = '1';
+  doc.addEventListener('click', (ev) => {
+    if (ev.button !== 0 || ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.altKey) return;
+    const target = ev.target as Element | null;
+    const source = target?.closest?.<HTMLElement>('[data-source-offset]');
+    if (!source) return;
+
+    const offset = Number(source.dataset.sourceOffset);
+    if (!Number.isFinite(offset)) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+
+    if (prefs.viewMode === 'preview') setViewMode('edit');
+    window.requestAnimationFrame(() => editor.focusAt(offset));
+  });
+}
+
 /* ---------- 事件绑定 ---------- */
 
 function wireEvents(): void {
@@ -947,6 +973,8 @@ function wireEvents(): void {
     ev.stopPropagation();
     copyMenu.hidden = !copyMenu.hidden;
   });
+
+  preview.addEventListener('load', wirePreviewSourceNavigation);
   $('#btn-copy-rich').addEventListener('click', () => void copyRich(prefs.copyTarget));
   $('#btn-copy-wechat-menu').addEventListener('click', () => {
     setCopyTarget('wechat');
@@ -1251,6 +1279,10 @@ function wireEvents(): void {
       }
     },
     previewFrameRect: (): DOMRect => preview.getBoundingClientRect(),
+    editorState: () => ({
+      offset: editor.view.state.selection.main.head,
+      viewMode: prefs.viewMode,
+    }),
   };
 
   previewBody = welcomeHtml();

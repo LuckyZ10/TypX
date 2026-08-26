@@ -1,4 +1,4 @@
-import { marked } from 'marked';
+import { marked, Renderer, type Token, type Tokens } from 'marked';
 import hljs from 'highlight.js';
 import DOMPurify from 'dompurify';
 import markedKatex from 'marked-katex-extension';
@@ -17,15 +17,87 @@ marked.use(markedKatex({ throwOnError: false, nonStandard: true }));
 
 // 复制时需要把公式换回 TeX 重新排版：新版 KaTeX 输出里已不带 annotation，
 // 改在解析期用 walkTokens 按文档顺序收集公式 token，渲染后写进 data-tex
-let pendingFormulas: { tex: string; display: boolean }[] = [];
-marked.use({
-  walkTokens(token) {
-    const t = token as { type?: string; text?: string; displayMode?: boolean };
-    if ((t.type === 'inlineKatex' || t.type === 'blockKatex') && typeof t.text === 'string') {
-      pendingFormulas.push({ tex: t.text, display: !!t.displayMode });
+type SourceRange = { sourceOffset?: number; sourceEnd?: number };
+
+let pendingFormulas: { tex: string; display: boolean; sourceOffset?: number; sourceEnd?: number }[] = [];
+
+function rangeOf(token: Token): SourceRange {
+  return token as Token & SourceRange;
+}
+
+/**
+ * marked 的 token 带有原始 Markdown 片段但不带绝对位置。这里沿父 token
+ * 的原文顺序定位子 token，为预览点击回跳建立稳定的块级偏移映射。
+ */
+function annotateSourceRanges(tokens: Token[], source: string, baseOffset = 0): void {
+  let cursor = 0;
+  for (const token of tokens) {
+    const raw = typeof token.raw === 'string' ? token.raw : '';
+    let localOffset = raw ? source.indexOf(raw, cursor) : -1;
+    if (localOffset < 0 && raw) localOffset = source.indexOf(raw);
+
+    if (localOffset >= 0) {
+      const range = rangeOf(token);
+      range.sourceOffset = baseOffset + localOffset;
+      range.sourceEnd = range.sourceOffset + raw.length;
+      cursor = localOffset + raw.length;
+
+      if (token.type === 'list') {
+        annotateSourceRanges(token.items, raw, range.sourceOffset);
+      } else if ('tokens' in token && Array.isArray(token.tokens)) {
+        annotateSourceRanges(token.tokens, raw, range.sourceOffset);
+      }
     }
-  },
-});
+  }
+}
+
+function withSourceRange(html: string, token: Token): string {
+  const { sourceOffset, sourceEnd } = rangeOf(token);
+  if (sourceOffset === undefined || sourceEnd === undefined) return html;
+  return html.replace(
+    /^(\s*<[a-zA-Z][^\s/>]*)/,
+    `$1 data-source-offset="${sourceOffset}" data-source-end="${sourceEnd}"`,
+  );
+}
+
+/** 默认 marked Renderer 外面只补定位属性，不改变任何 Markdown 输出语义。 */
+class SourcePositionRenderer extends Renderer {
+  code(token: Tokens.Code): string {
+    return withSourceRange(super.code(token), token);
+  }
+
+  blockquote(token: Tokens.Blockquote): string {
+    return withSourceRange(super.blockquote(token), token);
+  }
+
+  html(token: Tokens.HTML | Tokens.Tag): string {
+    return withSourceRange(super.html(token), token);
+  }
+
+  heading(token: Tokens.Heading): string {
+    return withSourceRange(super.heading(token), token);
+  }
+
+  hr(token: Tokens.Hr): string {
+    return withSourceRange(super.hr(token), token);
+  }
+
+  list(token: Tokens.List): string {
+    return withSourceRange(super.list(token), token);
+  }
+
+  listitem(token: Tokens.ListItem): string {
+    return withSourceRange(super.listitem(token), token);
+  }
+
+  paragraph(token: Tokens.Paragraph): string {
+    return withSourceRange(super.paragraph(token), token);
+  }
+
+  table(token: Tokens.Table): string {
+    return withSourceRange(super.table(token), token);
+  }
+}
 
 /* 复制到公众号时公式用 MathJax 输出行内 SVG：微信编辑器不支持公式 HTML，
    但接受不带 <defs> 的 SVG（mdnice/doocs 同款方案）。fontCache:'none' 让
@@ -56,15 +128,34 @@ export function texToSvg(texSrc: string, display: boolean): string {
  */
 export function renderMarkdown(md: string, baseDir: string): string {
   pendingFormulas = [];
-  const rawHtml = marked.parse(md, { async: false }) as string;
+  const tokens = marked.lexer(md);
+  annotateSourceRanges(tokens, md);
+  marked.walkTokens(tokens, (token) => {
+    const t = token as typeof token & { text?: string; displayMode?: boolean } & SourceRange;
+    if ((t.type === 'inlineKatex' || t.type === 'blockKatex') && typeof t.text === 'string') {
+      pendingFormulas.push({
+        tex: t.text,
+        display: !!t.displayMode,
+        sourceOffset: t.sourceOffset,
+        sourceEnd: t.sourceEnd,
+      });
+    }
+  });
+  const rawHtml = marked.parser(tokens, { ...marked.defaults, renderer: new SourcePositionRenderer() });
   const parsed = new DOMParser().parseFromString(rawHtml, 'text/html');
   resolveImages(parsed, baseDir);
   // TeX 源按文档顺序盖到 .katex 上（顺序与 token 流一致，数量不一致时放弃以保安全）
   const kats = Array.from(parsed.querySelectorAll('.katex'));
   if (kats.length === pendingFormulas.length) {
     kats.forEach((el, i) => {
-      el.setAttribute('data-tex', pendingFormulas[i].tex);
-      el.setAttribute('data-display', pendingFormulas[i].display ? '1' : '0');
+      const formula = pendingFormulas[i];
+      el.setAttribute('data-tex', formula.tex);
+      el.setAttribute('data-display', formula.display ? '1' : '0');
+      if (formula.display && formula.sourceOffset !== undefined && formula.sourceEnd !== undefined) {
+        const sourceTarget = el.closest('.katex-display') ?? el;
+        sourceTarget.setAttribute('data-source-offset', String(formula.sourceOffset));
+        sourceTarget.setAttribute('data-source-end', String(formula.sourceEnd));
+      }
     });
   }
   const clean = DOMPurify.sanitize(parsed.body.innerHTML, {

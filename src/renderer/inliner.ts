@@ -99,7 +99,13 @@ export function inlinePreviewStyles(iframe: HTMLIFrameElement): string {
     }
   }
 
-  return root.outerHTML;
+  // data-source-* 只服务 TypX 内部的“点击预览定位源码”，不带到发布平台。
+  const output = root.cloneNode(true) as HTMLElement;
+  output.querySelectorAll('[data-source-offset], [data-source-end]').forEach((el) => {
+    el.removeAttribute('data-source-offset');
+    el.removeAttribute('data-source-end');
+  });
+  return output.outerHTML;
 }
 
 export function htmlToText(html: string): string {
