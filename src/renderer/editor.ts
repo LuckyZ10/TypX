@@ -121,9 +121,13 @@ export function createEditor(
         '.cm-content': { padding: '0 24px 0 10px', caretColor: '#20201e' },
         '.cm-line': { paddingLeft: '5px' },
         '.cm-gutters': { backgroundColor: '#fdfdfc', color: '#aaa9a2', border: 'none', paddingLeft: '10px' },
-        '.cm-activeLine': { backgroundColor: '#f4f4f0' },
+        /* 行背景必须半透明：选区层 z-index 为 -2 画在内容层后面，
+           不透明的行背景会把选区完全盖住（CM6 默认主题也是半透明行背景） */
+        '.cm-activeLine': { backgroundColor: 'rgba(20, 20, 16, 0.035)' },
         '.cm-activeLineGutter': { backgroundColor: '#f4f4f0', color: '#72726c' },
-        '.cm-selectionBackground, &.cm-focused .cm-selectionBackground': { backgroundColor: '#dce7f8 !important' },
+        '.cm-selectionBackground': { backgroundColor: '#e9e9e3 !important' },
+        '&.cm-focused .cm-selectionBackground': { backgroundColor: '#dce7f8 !important' },
+        '.cm-selectionMatch': { backgroundColor: 'rgba(42, 92, 170, 0.13)' },
         '.cm-lintRange-warning': {
           backgroundImage: 'none',
           textDecoration: 'underline wavy #d18a24',

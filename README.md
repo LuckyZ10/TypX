@@ -50,8 +50,8 @@ Projects and articles live on the left, the Markdown editor in the middle, and t
 - **Optional Nutstore sync**: connect WebDAV per project, sync manually or after saves; passwords use the OS secure store, and concurrent changes are preserved as conflict copies
 - **Built-in updates (installer edition)**: checks GitHub Releases silently, downloads in the background, and installs into the existing location after restart; manual checking lives in Settings
 - **Non-blocking Markdown hints**: suspicious `**` markers that did not become bold get a subtle warning; TypX never edits the source automatically, and hints can be disabled
-- **Three panes**: file tree (right-click to copy the absolute file path, open in the default app, reveal in Explorer, or flag as "published" with a green badge to avoid duplicate uploads) · CodeMirror 6 editor (Ctrl+S) · scroll-synced preview
-- **View modes**: edit / split / preview — clicking preview content selects and highlights its exact Markdown source range
+- **Three panes**: file tree (right-click to copy the absolute file path, open in the default app, reveal in Explorer, or flag as "published" with a green badge to avoid duplicate uploads) · CodeMirror 6 editor (Ctrl+S, right-click for cut/copy/paste/select-all) · scroll-synced preview
+- **View modes**: edit / split / preview — clicking preview content selects and highlights its exact Markdown source range; clicking a local image reveals the file in Explorer
 
 **🎨 Typesetting**
 

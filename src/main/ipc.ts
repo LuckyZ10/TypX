@@ -249,6 +249,7 @@ export function setupIpc(getWin: () => BrowserWindow | null): void {
   ipcMain.handle('clipboard:writeText', (_e, text: string) => {
     clipboard.writeText(text);
   });
+  ipcMain.handle('clipboard:readText', () => clipboard.readText());
 
   ipcMain.handle('watch:start', (_e, folder: string) => {
     stopWatch();

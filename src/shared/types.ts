@@ -143,6 +143,8 @@ export interface TypXApi {
   /** 以富文本（text/html + 纯文本）写剪贴板，可粘贴进公众号 / 知乎编辑器 */
   copyRich(html: string, text: string): Promise<void>;
   copyText(text: string): Promise<void>;
+  /** 读剪贴板纯文本（编辑器右键「粘贴」用） */
+  readText(): Promise<string>;
   watchFolder(folder: string): Promise<void>;
   unwatch(): Promise<void>;
   onFsChanged(cb: (info: { relPath: string | null }) => void): void;

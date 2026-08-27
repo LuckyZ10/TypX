@@ -16,6 +16,7 @@ const api: TypXApi = {
   setPrefs: (prefs) => ipcRenderer.invoke('prefs:set', prefs),
   copyRich: (html, text) => ipcRenderer.invoke('clipboard:writeRich', html, text),
   copyText: (text) => ipcRenderer.invoke('clipboard:writeText', text),
+  readText: () => ipcRenderer.invoke('clipboard:readText'),
   watchFolder: (folder) => ipcRenderer.invoke('watch:start', folder),
   unwatch: () => ipcRenderer.invoke('watch:stop'),
   onFsChanged: (cb) => {

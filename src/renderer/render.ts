@@ -194,7 +194,15 @@ function resolveImages(doc: Document, baseDir: string): void {
       continue;
     }
     if (!baseDir) continue;
-    img.setAttribute('src', toMdFileUrl(resolveLocalPath(baseDir, src)));
+    // marked 会把图片 URL 里的中文/空格转成 %XX；先解码回真实文件名，
+    // 否则 toMdFileUrl 再编码一次会导致 mdfile 协议层读到双重编码路径
+    let rel = src;
+    try {
+      rel = decodeURIComponent(src);
+    } catch {
+      // 文件名本身含非法转义（如字面 %）时按原文处理
+    }
+    img.setAttribute('src', toMdFileUrl(resolveLocalPath(baseDir, rel)));
   }
 }
 

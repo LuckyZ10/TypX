@@ -836,6 +836,17 @@ function onEditorScrollRatio(r: number): void {
   if (denom > 1) w.scrollTo(0, r * denom);
 }
 
+type PreviewImageKind = 'reveal' | 'external';
+type PreviewImageAction = (kind: PreviewImageKind, target: string) => void;
+
+function defaultPreviewImageAction(kind: PreviewImageKind, target: string): void {
+  if (kind === 'reveal') void window.api.showInFolder(target);
+  else void window.api.openExternal(target);
+}
+
+/** 预览里点击图片的默认动作可被测试钩子替换（避免自动化时真的拉起资源管理器/浏览器） */
+let previewImageAction: PreviewImageAction = defaultPreviewImageAction;
+
 function wirePreviewSourceNavigation(): void {
   const doc = preview.contentDocument;
   if (!doc || doc.documentElement.dataset.sourceNavigationReady === '1') return;
@@ -843,6 +854,25 @@ function wirePreviewSourceNavigation(): void {
   doc.addEventListener('click', (ev) => {
     if (ev.button !== 0 || ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.altKey) return;
     const target = ev.target as Element | null;
+
+    // 点击图片：本地图片在资源管理器中定位原文件，外链图片用浏览器打开；
+    // 图片不参与「点击跳转 Markdown 源码」，跳源码请点图片周围的文字
+    const img = target?.closest?.('img');
+    if (img) {
+      const src = img.getAttribute('src') ?? '';
+      const localPath = mdFileUrlToPath(src)?.replace(/\//g, '\\');
+      if (localPath) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        previewImageAction('reveal', localPath);
+      } else if (/^https?:/i.test(src)) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        previewImageAction('external', src);
+      }
+      return;
+    }
+
     const source = target?.closest?.<HTMLElement>('[data-source-offset]');
     if (!source) return;
 
@@ -1033,6 +1063,69 @@ function wireEvents(): void {
     if (!p) return;
     await window.api.copyText(p);
     toast('已复制文件路径');
+  });
+
+  // 编辑器右键菜单：剪切 / 复制 / 粘贴 / 全选（Ctrl+X/C/V/A 由 CodeMirror 原生支持）
+  const editMenu = $('#edit-menu');
+  const closeEditMenu = (): void => {
+    editMenu.hidden = true;
+  };
+  editor.view.dom.addEventListener('contextmenu', (ev) => {
+    ev.preventDefault();
+    const view = editor.view;
+    const sel = view.state.selection.main;
+    const pos = view.posAtCoords({ x: ev.clientX, y: ev.clientY });
+    // 与原生编辑器一致：右键点在选区之外时收起选区、把光标移过去
+    if (pos !== null && (pos < sel.from || pos >= sel.to)) view.dispatch({ selection: { anchor: pos } });
+    const hasSelection = !view.state.selection.main.empty;
+    ($('#em-cut') as HTMLButtonElement).disabled = !hasSelection;
+    ($('#em-copy') as HTMLButtonElement).disabled = !hasSelection;
+    editMenu.hidden = false;
+    const menuGap = 8;
+    const maxLeft = Math.max(menuGap, window.innerWidth - editMenu.offsetWidth - menuGap);
+    const maxTop = Math.max(menuGap, window.innerHeight - editMenu.offsetHeight - menuGap);
+    editMenu.style.left = `${Math.max(menuGap, Math.min(ev.clientX, maxLeft))}px`;
+    editMenu.style.top = `${Math.max(menuGap, Math.min(ev.clientY, maxTop))}px`;
+  });
+  document.addEventListener('click', (ev) => {
+    if (!(ev.target as HTMLElement).closest('#edit-menu')) closeEditMenu();
+  });
+  document.addEventListener('contextmenu', (ev) => {
+    if (!(ev.target as HTMLElement).closest('.cm-editor')) closeEditMenu();
+  });
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Escape') closeEditMenu();
+  });
+  $('#em-cut').addEventListener('click', () => {
+    const view = editor.view;
+    const sel = view.state.selection.main;
+    closeEditMenu();
+    if (sel.empty) return;
+    void window.api.copyText(view.state.sliceDoc(sel.from, sel.to));
+    view.dispatch({ changes: { from: sel.from, to: sel.to } });
+    view.focus();
+  });
+  $('#em-copy').addEventListener('click', () => {
+    const view = editor.view;
+    const sel = view.state.selection.main;
+    closeEditMenu();
+    if (!sel.empty) void window.api.copyText(view.state.sliceDoc(sel.from, sel.to));
+    view.focus();
+  });
+  $('#em-paste').addEventListener('click', () => {
+    const view = editor.view;
+    const sel = view.state.selection.main;
+    closeEditMenu();
+    void window.api.readText().then((text) => {
+      if (text) view.dispatch({ changes: { from: sel.from, to: sel.to, insert: text }, selection: { anchor: sel.from + text.length } });
+      view.focus();
+    });
+  });
+  $('#em-select-all').addEventListener('click', () => {
+    closeEditMenu();
+    const view = editor.view;
+    view.dispatch({ selection: { anchor: 0, head: view.state.doc.length } });
+    view.focus();
   });
 
   $('#sel-theme').addEventListener('change', () => {
@@ -1398,6 +1491,9 @@ function wireEvents(): void {
       selectedText: editor.view.state.sliceDoc(editor.view.state.selection.main.from, editor.view.state.selection.main.to),
       viewMode: prefs.viewMode,
     }),
+    hookPreviewImage(fn: ((kind: 'reveal' | 'external', target: string) => void) | null): void {
+      previewImageAction = fn ?? defaultPreviewImageAction;
+    },
     syntaxWarnings: () => editor.getSyntaxWarnings().map((warning) => ({
       from: warning.from,
       to: warning.to,
