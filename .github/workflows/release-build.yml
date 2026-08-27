@@ -1,0 +1,65 @@
+name: Release build
+
+# Windows 安装包构建：winCodeSign 解压需要符号链接权限，非管理员本机构建会失败，
+# 统一放到 GitHub Actions 的 windows runner（管理员权限）上完成。
+# 触发方式：push v* tag 自动构建；或手动 dispatch 指定已有 tag（workflow 需在 main 上）。
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: '发布到哪个 tag（如 v0.6.4）'
+        required: true
+        type: string
+
+jobs:
+  windows-release:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: 构建安装包（NSIS + latest.yml）
+        run: npm run dist
+
+      - name: 构建便携版目录
+        run: npm run dist:dir
+
+      - name: 校验更新产物
+        run: npm run verify:update
+
+      - id: ver
+        shell: bash
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: 压缩便携版 zip
+        shell: pwsh
+        run: Compress-Archive -Path "release/TypX-${{ steps.ver.outputs.version }}-win-x64-portable/*" -DestinationPath "release/TypX-${{ steps.ver.outputs.version }}-win-x64-portable.zip"
+
+      - name: 生成 SHA256SUMS.txt
+        shell: bash
+        run: |
+          cd release
+          sha256sum TypX-Setup-*.exe TypX-Setup-*.exe.blockmap TypX-*-win-x64-portable.zip latest.yml > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: 上传到 GitHub Release（草稿）
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag_name || github.ref_name }}
+          draft: true
+          files: |
+            release/TypX-Setup-*.exe
+            release/TypX-Setup-*.exe.blockmap
+            release/TypX-*-win-x64-portable.zip
+            release/latest.yml
+            release/SHA256SUMS.txt
