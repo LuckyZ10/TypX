@@ -29,7 +29,11 @@ jobs:
       - run: npm ci
 
       - name: 构建安装包（NSIS + latest.yml）
-        run: npm run dist
+        # CI 里 electron-builder 检测到 publish 配置会尝试自动上传并因缺 GH_TOKEN 报错，
+        # 显式 --publish never，上传交给后面的 gh-release 步骤
+        run: |
+          node esbuild.mjs
+          npx electron-builder --win --publish never
 
       - name: 构建便携版目录
         run: npm run dist:dir
