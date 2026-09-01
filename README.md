@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/LuckyZ10/TypX/releases/latest"><strong>下载最新版本</strong></a>
+  <a href="https://github.com/LuckyZ10/TypX/releases/download/v0.7.0/TypX-Setup-0.7.0.exe"><strong>下载 TypX v0.7.0</strong></a>
   &nbsp;·&nbsp;
   <a href="#快速开始">快速开始</a>
   &nbsp;·&nbsp;
@@ -17,7 +17,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/github/v/release/LuckyZ10/TypX?style=flat-square&label=版本&color=111111" alt="最新版本">
+  <a href="https://github.com/LuckyZ10/TypX/releases/tag/v0.7.0"><img src="https://img.shields.io/github/v/release/LuckyZ10/TypX?style=flat-square&label=版本&color=111111" alt="最新版本"></a>
   <img src="https://img.shields.io/badge/Windows-安装版-2563EB?style=flat-square" alt="Windows 安装版">
   <img src="https://img.shields.io/badge/微信公众号-排版优化-07C160?style=flat-square" alt="微信公众号排版优化">
   <img src="https://img.shields.io/badge/坚果云-WebDAV-FF6B35?style=flat-square" alt="坚果云 WebDAV">
@@ -29,7 +29,7 @@
 
 TypX 把本地文章、Markdown 编辑、主题预览和平台发布整理在同一个安静的工作区。左侧管理文章，中间专注写作，右侧实时确认最终效果。
 
-[![TypX 主界面：本地文章、Markdown 编辑和排版预览](./images/overview.png)](https://github.com/LuckyZ10/TypX/releases/latest)
+[![TypX 主界面：本地文章、Markdown 编辑和排版预览](./images/overview.png)](https://github.com/LuckyZ10/TypX/releases/tag/v0.7.0)
 
 ## 核心功能
 
@@ -66,14 +66,14 @@ TypX 把本地文章、Markdown 编辑、主题预览和平台发布整理在同
 
 ## 快速开始
 
-1. 前往 [TypX Releases](https://github.com/LuckyZ10/TypX/releases/latest)。
+1. 前往 [TypX Releases](https://github.com/LuckyZ10/TypX/releases/tag/v0.7.0)。
 2. 下载 `TypX-Setup-x.x.x.exe`。
 3. 运行安装向导并选择安装目录。
 4. 打开一个存放 Markdown 的文件夹，选择文章后即可编辑和预览。
 5. 在右上角选择公众号，一键复制并粘贴到公众号编辑器。
 
 <p align="center">
-  <a href="https://github.com/LuckyZ10/TypX/releases/latest/download/TypX-Setup-0.7.0.exe">
+  <a href="https://github.com/LuckyZ10/TypX/releases/download/v0.7.0/TypX-Setup-0.7.0.exe">
     <img src="https://img.shields.io/badge/下载-TypX%20v0.7.0-111111?style=for-the-badge&logo=windows11&logoColor=white" alt="下载 TypX v0.7.0">
   </a>
 </p>
