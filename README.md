@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="./images/icon.png" width="96" alt="TypX 图标">
+  <a href="https://github.com/LuckyZ10/TypX/releases/tag/v0.7.0">
+    <img src="./images/typx-banner.png" alt="TypX：专注写作，安心排版">
+  </a>
 </p>
-
-<h1 align="center">TypX</h1>
 
 <p align="center">
   为微信公众号写作者打造的本地 Markdown 排版工具
@@ -14,6 +14,8 @@
   <a href="#快速开始">快速开始</a>
   &nbsp;·&nbsp;
   <a href="https://github.com/LuckyZ10/TypX/issues">问题反馈</a>
+  &nbsp;·&nbsp;
+  <a href="https://ifdian.net/a/SiliconQuest">支持 TypX</a>
 </p>
 
 <p align="center">
@@ -75,6 +77,16 @@ TypX 把本地文章、Markdown 编辑、主题预览和平台发布整理在同
 <p align="center">
   <a href="https://github.com/LuckyZ10/TypX/releases/download/v0.7.0/TypX-Setup-0.7.0.exe">
     <img src="https://img.shields.io/badge/下载-TypX%20v0.7.0-111111?style=for-the-badge&logo=windows11&logoColor=white" alt="下载 TypX v0.7.0">
+  </a>
+</p>
+
+## 支持 TypX
+
+TypX 由独立开发者持续维护。如果它帮助你减少了排版时间，欢迎通过爱发电支持后续功能开发、兼容性测试和版本维护。赞助完全自愿，不等同于购买软件或功能授权。
+
+<p align="center">
+  <a href="https://ifdian.net/a/SiliconQuest">
+    <img src="https://img.shields.io/badge/爱发电-支持%20TypX-9463E8?style=for-the-badge" alt="在爱发电支持 TypX">
   </a>
 </p>
 
