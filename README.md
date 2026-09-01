@@ -14,8 +14,6 @@
   <a href="#快速开始">快速开始</a>
   &nbsp;·&nbsp;
   <a href="https://github.com/LuckyZ10/TypX/issues">问题反馈</a>
-  &nbsp;·&nbsp;
-  <a href="https://ifdian.net/a/SiliconQuest">支持 TypX</a>
 </p>
 
 <p align="center">
@@ -23,6 +21,12 @@
   <img src="https://img.shields.io/badge/Windows-安装版-2563EB?style=flat-square" alt="Windows 安装版">
   <img src="https://img.shields.io/badge/微信公众号-排版优化-07C160?style=flat-square" alt="微信公众号排版优化">
   <img src="https://img.shields.io/badge/坚果云-WebDAV-FF6B35?style=flat-square" alt="坚果云 WebDAV">
+</p>
+
+<p align="center">
+  <a href="https://ifdian.net/a/SiliconQuest">
+    <img src="./images/badge-support.svg" width="210" alt="在爱发电支持 TypX">
+  </a>
 </p>
 
 ---
@@ -86,7 +90,7 @@ TypX 由独立开发者持续维护。如果它帮助你减少了排版时间，
 
 <p align="center">
   <a href="https://ifdian.net/a/SiliconQuest">
-    <img src="https://img.shields.io/badge/爱发电-支持%20TypX-9463E8?style=for-the-badge" alt="在爱发电支持 TypX">
+    <img src="./images/badge-support.svg" width="210" alt="在爱发电支持 TypX">
   </a>
 </p>
 
