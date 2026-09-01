@@ -17,7 +17,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/LuckyZ10/TypX/releases/tag/v0.7.0"><img src="https://img.shields.io/github/v/release/LuckyZ10/TypX?style=flat-square&label=版本&color=111111" alt="最新版本"></a>
+  <a href="https://github.com/LuckyZ10/TypX/releases/tag/v0.7.0"><img src="./images/badge-version.svg" alt="TypX v0.7.0"></a>
   <img src="https://img.shields.io/badge/Windows-安装版-2563EB?style=flat-square" alt="Windows 安装版">
   <img src="https://img.shields.io/badge/微信公众号-排版优化-07C160?style=flat-square" alt="微信公众号排版优化">
   <img src="https://img.shields.io/badge/坚果云-WebDAV-FF6B35?style=flat-square" alt="坚果云 WebDAV">
