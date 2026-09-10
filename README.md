@@ -25,7 +25,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/LuckyZ10/TypX/releases/download/v0.8.0/TypX-Setup-0.8.0.exe"><strong>⬇️ 下载 Windows 安装包 / Download v0.8.0</strong></a>
+  <a href="https://github.com/LuckyZ10/TypX/releases/download/v0.8.1/TypX-Setup-0.8.1.exe"><strong>⬇️ 下载 Windows 安装包 / Download v0.8.1</strong></a>
   &nbsp;·&nbsp;
   <a href="https://github.com/LuckyZ10/TypX/releases">历史版本 / Releases</a>
   &nbsp;·&nbsp;
@@ -101,7 +101,7 @@ TypX 会把主题样式内联到文章内容，并针对微信公众号编辑器
 
 ### 快速开始
 
-1. 下载 [`TypX-Setup-0.8.0.exe`](https://github.com/LuckyZ10/TypX/releases/download/v0.8.0/TypX-Setup-0.8.0.exe)（Windows 10/11，64 位）。
+1. 下载 [`TypX-Setup-0.8.1.exe`](https://github.com/LuckyZ10/TypX/releases/download/v0.8.1/TypX-Setup-0.8.1.exe)（Windows 10/11，64 位）。
 2. 运行安装向导并选择安装目录。
 3. 点击底部 `+`，添加一个存放 Markdown 的文件夹。
 4. 在顶部选择"所见"直接写作，或使用"分屏"同时编辑和预览。
@@ -120,13 +120,12 @@ TypX 会把主题样式内联到文章内容，并针对微信公众号编辑器
 
 </details>
 
-### v0.8.0 更新亮点
+### v0.8.1 更新亮点
 
-- 接近 Typora 的"所见"编辑模式
-- 表格网格插入、单元格编辑及行列增删移动
-- 待办和块公式右键插入，KaTeX 块公式实时编辑
-- 统一窗口顶栏与更简洁的桌面布局
-- 多项目标签、持久项目库以及清晰的关闭/移除逻辑
+- 宽表格不再被压成"一字一行"，列按自然宽度撑开，预览与长公式一致横向滚动
+- 公众号粘贴后宽表格可左右滑动查看，手机端阅读同样生效
+- 公众号粘贴后公式与表格前后不再多出空行
+- 全链路回归：公式 SVG、长公式滚动、列表、图片与主题
 
 ### 支持 TypX
 
@@ -195,7 +194,7 @@ Your articles stay in local folders you control. Open multiple project folders a
 
 ### Quick start
 
-1. Download [`TypX-Setup-0.8.0.exe`](https://github.com/LuckyZ10/TypX/releases/download/v0.8.0/TypX-Setup-0.8.0.exe) (Windows 10/11, 64-bit).
+1. Download [`TypX-Setup-0.8.1.exe`](https://github.com/LuckyZ10/TypX/releases/download/v0.8.1/TypX-Setup-0.8.1.exe) (Windows 10/11, 64-bit).
 2. Run the installer and choose an installation directory.
 3. Click `+` in the bottom bar and add a folder containing Markdown files.
 4. Choose **WYSIWYG** for direct editing, or **Split** to edit and preview side by side.
@@ -214,13 +213,12 @@ After installation there is no need to re-download: new versions can be checked 
 
 </details>
 
-### What's new in v0.8.0
+### What's new in v0.8.1
 
-- Typora-inspired WYSIWYG editing
-- Grid-based table insertion, cell editing, and full row/column operations
-- Context-menu insertion for tasks and display math, with live KaTeX block editing
-- Unified window title bar and a cleaner desktop layout
-- Multi-project tabs, a persistent project library, and predictable close/remove behavior
+- Wide tables no longer squeeze into one-character columns; columns keep their natural width and the preview scrolls horizontally, just like long formulas
+- WeChat publishing: pasted wide tables can be swiped left and right, on desktop and on phones
+- WeChat publishing: no more extra blank lines above or below formulas and tables
+- Full-pipeline regression: formula SVGs, long-equation scrolling, lists, images, and themes
 
 ### Support TypX
 
