@@ -16,7 +16,9 @@ TypX：Electron + CodeMirror 6 的 Markdown 排版工具（公众号 / 知乎）
 - Windows 安装包**只在 GitHub Actions 上构建**：push `v*` tag 自动触发
   `.github/workflows/release-build.yml`（本机非管理员终端会因 winCodeSign 符号链接失败，详见
   [docs/构建与发布.md](docs/构建与发布.md)）。
-- 发布 = `npm version` → 提交 → push main → push tag → 核对草稿 Release 的 `latest.yml` → 正式发布。
+- 发布 = `npm version` → 提交 → push source → push tag → 核对草稿 Release 的 `latest.yml` → 正式发布。
+- 分支分工：`source` = 开发线（本仓库日常分支）；`main` = 产品主页线（仅 README / images /
+  FUNDING，无代码，与 source 无共同祖先，改动主页需单独切换过去提交）。
 - `latest.yml` 是自动更新源，发布前必须核对 version / path / sha512。
 
 ## 其他
