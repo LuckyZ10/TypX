@@ -25,7 +25,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/LuckyZ10/TypX/releases/download/v0.8.1/TypX-Setup-0.8.1.exe"><strong>⬇️ 下载 Windows 安装包 / Download v0.8.1</strong></a>
+  <a href="https://github.com/LuckyZ10/TypX/releases/download/v0.9.0/TypX-Setup-0.9.0.exe"><strong>⬇️ 下载 Windows 安装包 / Download v0.9.0</strong></a>
   &nbsp;·&nbsp;
   <a href="https://github.com/LuckyZ10/TypX/releases">历史版本 / Releases</a>
   &nbsp;·&nbsp;
@@ -101,7 +101,7 @@ TypX 会把主题样式内联到文章内容，并针对微信公众号编辑器
 
 ### 快速开始
 
-1. 下载 [`TypX-Setup-0.8.1.exe`](https://github.com/LuckyZ10/TypX/releases/download/v0.8.1/TypX-Setup-0.8.1.exe)（Windows 10/11，64 位）。
+1. 下载 [`TypX-Setup-0.9.0.exe`](https://github.com/LuckyZ10/TypX/releases/download/v0.9.0/TypX-Setup-0.9.0.exe)（Windows 10/11，64 位）。
 2. 运行安装向导并选择安装目录。
 3. 点击底部 `+`，添加一个存放 Markdown 的文件夹。
 4. 在顶部选择"所见"直接写作，或使用"分屏"同时编辑和预览。
@@ -120,12 +120,15 @@ TypX 会把主题样式内联到文章内容，并针对微信公众号编辑器
 
 </details>
 
-### v0.8.1 更新亮点
+### v0.9.0 更新亮点
 
-- 宽表格不再被压成"一字一行"，列按自然宽度撑开，预览与长公式一致横向滚动
-- 公众号粘贴后宽表格可左右滑动查看，手机端阅读同样生效
-- 公众号粘贴后公式与表格前后不再多出空行
-- 全链路回归：公式 SVG、长公式滚动、列表、图片与主题
+- 命令面板（Ctrl+K）：跳文件、搜内容、切主题、执行命令，一个入口
+- 文档大纲侧栏：实时列出标题层级，点击跳转
+- 编辑器搜索替换（Ctrl+F / Ctrl+H），支持正则
+- 深色主题：应用跟随系统，新增「暗夜」「暗夜墨青」发布主题
+- 图片粘贴即插入：截图直接粘贴，拖拽图片自动落盘
+- 专注模式（Ctrl+.）：隐藏侧栏，打字机滚动，段落高亮
+- 智能粘贴：公众号/知乎/网页 HTML 自动转 Markdown
 
 ### 支持 TypX
 
@@ -194,7 +197,7 @@ Your articles stay in local folders you control. Open multiple project folders a
 
 ### Quick start
 
-1. Download [`TypX-Setup-0.8.1.exe`](https://github.com/LuckyZ10/TypX/releases/download/v0.8.1/TypX-Setup-0.8.1.exe) (Windows 10/11, 64-bit).
+1. Download [`TypX-Setup-0.9.0.exe`](https://github.com/LuckyZ10/TypX/releases/download/v0.9.0/TypX-Setup-0.9.0.exe) (Windows 10/11, 64-bit).
 2. Run the installer and choose an installation directory.
 3. Click `+` in the bottom bar and add a folder containing Markdown files.
 4. Choose **WYSIWYG** for direct editing, or **Split** to edit and preview side by side.
@@ -213,12 +216,15 @@ After installation there is no need to re-download: new versions can be checked 
 
 </details>
 
-### What's new in v0.8.1
+### What's new in v0.9.0
 
-- Wide tables no longer squeeze into one-character columns; columns keep their natural width and the preview scrolls horizontally, just like long formulas
-- WeChat publishing: pasted wide tables can be swiped left and right, on desktop and on phones
-- WeChat publishing: no more extra blank lines above or below formulas and tables
-- Full-pipeline regression: formula SVGs, long-equation scrolling, lists, images, and themes
+- Command palette (Ctrl+K): jump to files, search content, switch themes, run commands
+- Document outline sidebar with heading jump
+- Editor search & replace (Ctrl+F / Ctrl+H) with regex support
+- Dark mode: app follows system, plus "Midnight" and "Midnight Ink" publish themes
+- Image paste & drag: paste screenshots directly, drag files to auto-insert
+- Focus mode (Ctrl+.): hides sidebar, typewriter scrolling, paragraph highlight
+- Smart paste: WeChat/Zhihu/web HTML automatically converts to Markdown
 
 ### Support TypX
 
