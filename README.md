@@ -25,7 +25,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/LuckyZ10/TypX/releases/download/v0.9.0/TypX-Setup-0.9.0.exe"><strong>⬇️ 下载 Windows 安装包 / Download v0.9.0</strong></a>
+  <a href="https://github.com/LuckyZ10/TypX/releases/download/v0.9.3/TypX-Setup-0.9.3.exe"><strong>⬇️ 下载 Windows 安装包 / Download v0.9.3</strong></a>
   &nbsp;·&nbsp;
   <a href="https://github.com/LuckyZ10/TypX/releases">历史版本 / Releases</a>
   &nbsp;·&nbsp;
@@ -101,7 +101,7 @@ TypX 会把主题样式内联到文章内容，并针对微信公众号编辑器
 
 ### 快速开始
 
-1. 下载 [`TypX-Setup-0.9.0.exe`](https://github.com/LuckyZ10/TypX/releases/download/v0.9.0/TypX-Setup-0.9.0.exe)（Windows 10/11，64 位）。
+1. 下载 [`TypX-Setup-0.9.3.exe`](https://github.com/LuckyZ10/TypX/releases/download/v0.9.3/TypX-Setup-0.9.3.exe)（Windows 10/11，64 位）。
 2. 运行安装向导并选择安装目录。
 3. 点击底部 `+`，添加一个存放 Markdown 的文件夹。
 4. 在顶部选择"所见"直接写作，或使用"分屏"同时编辑和预览。
@@ -197,7 +197,7 @@ Your articles stay in local folders you control. Open multiple project folders a
 
 ### Quick start
 
-1. Download [`TypX-Setup-0.9.0.exe`](https://github.com/LuckyZ10/TypX/releases/download/v0.9.0/TypX-Setup-0.9.0.exe) (Windows 10/11, 64-bit).
+1. Download [`TypX-Setup-0.9.3.exe`](https://github.com/LuckyZ10/TypX/releases/download/v0.9.3/TypX-Setup-0.9.3.exe) (Windows 10/11, 64-bit).
 2. Run the installer and choose an installation directory.
 3. Click `+` in the bottom bar and add a folder containing Markdown files.
 4. Choose **WYSIWYG** for direct editing, or **Split** to edit and preview side by side.
